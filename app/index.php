@@ -9,7 +9,7 @@
              var userData = <?php print_r(json_encode($userData));?>;
              
              log(userData.email);
-            
+            // test
             
             // FACEBOOK SDK https://developers.facebook.com/apps/831655413710934/fb-login/quickstart/
                 //<script>
