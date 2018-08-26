@@ -1,0 +1,1586 @@
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<refentry>
+	<!--
+		Copyright (c) 2014-2018 Opsmate, Inc.
+
+		Permission is hereby granted, free of charge, to any person obtaining a
+		copy of this software and associated documentation files (the "Software"),
+		to deal in the Software without restriction, including without limitation
+		the rights to use, copy, modify, merge, publish, distribute, sublicense,
+		and/or sell copies of the Software, and to permit persons to whom the
+		Software is furnished to do so, subject to the following conditions:
+
+		The above copyright notice and this permission notice shall be included
+		in all copies or substantial portions of the Software.
+
+		THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+		THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+		OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+		ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+		OTHER DEALINGS IN THE SOFTWARE.
+
+		Except as contained in this notice, the name(s) of the above copyright
+		holders shall not be used in advertising or otherwise to promote the
+		sale, use or other dealings in this Software without prior written
+		authorization.
+	-->
+	<refentryinfo>
+		<title>SSLMate</title>
+		<date>2018-06-20</date>
+		<productname>SSLMate 1.7.0</productname>
+
+		<author>
+			<othername>SSLMate</othername>
+			<contrib></contrib>
+			<email>sslmate@sslmate.com</email>
+			<uri>https://sslmate.com</uri>
+		</author>
+	</refentryinfo>
+
+	<refmeta>
+		<refentrytitle>sslmate</refentrytitle>
+		<manvolnum>1</manvolnum>
+	</refmeta>
+
+	<refnamediv>
+		<refname>sslmate</refname>
+		<refpurpose>buy and manage SSL certificates</refpurpose>
+	</refnamediv>
+
+	<refsynopsisdiv>
+		<cmdsynopsis>
+			<command>sslmate <arg choice="opt"><replaceable>OPTIONS</replaceable></arg> <arg choice="plain"><replaceable>COMMAND</replaceable></arg> <arg choice="opt" rep="repeat"><replaceable>ARGS</replaceable></arg></command>
+		</cmdsynopsis>
+	</refsynopsisdiv>
+
+	<refsynopsisdiv>
+		<title>Common commands</title>
+		<cmdsynopsis>
+			<command>sslmate buy <arg choice="plain" rep="repeat"><replaceable>HOSTNAME</replaceable></arg></command>
+		</cmdsynopsis>
+		<cmdsynopsis>
+			<command>sslmate renew <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg></command>
+		</cmdsynopsis>
+		<cmdsynopsis>
+			<command>sslmate reissue <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg></command>
+		</cmdsynopsis>
+		<cmdsynopsis>
+			<command>sslmate rekey <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg></command>
+		</cmdsynopsis>
+		<cmdsynopsis>
+			<command>sslmate revoke <arg choice="opt">--all</arg> <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg></command>
+		</cmdsynopsis>
+		<cmdsynopsis>
+			<command>sslmate download <arg choice="plain" rep="repeat"><replaceable>HOSTNAME</replaceable></arg></command>
+		</cmdsynopsis>
+		<cmdsynopsis>
+			<command>sslmate download <arg choice="plain">--all</arg></command>
+		</cmdsynopsis>
+		<cmdsynopsis>
+			<command>sslmate list</command>
+		</cmdsynopsis>
+		<cmdsynopsis>
+			<command>sslmate show <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg></command>
+		</cmdsynopsis>
+		<cmdsynopsis>
+			<command>sslmate edit <arg choice="plain" rep="repeat"><replaceable>OPTIONS</replaceable></arg> <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg></command>
+		</cmdsynopsis>
+		<cmdsynopsis>
+			<command>sslmate test <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg></command>
+		</cmdsynopsis>
+		<cmdsynopsis>
+			<command>sslmate mkconfig <arg choice="plain"><replaceable>TEMPLATE</replaceable></arg> <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg></command>
+		</cmdsynopsis>
+		<cmdsynopsis>
+			<command>sslmate import <arg choice="plain"><replaceable>KEYFILE</replaceable></arg> <arg choice="plain"><replaceable>CERTFILE</replaceable></arg></command>
+		</cmdsynopsis>
+		<cmdsynopsis>
+			<command>sslmate retry-approval <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg></command>
+		</cmdsynopsis>
+		<cmdsynopsis>
+			<command>sslmate link</command>
+		</cmdsynopsis>
+	</refsynopsisdiv>
+
+	<refsect1>
+		<title>Description</title>
+
+		<para>
+			<command>sslmate</command> is the command line client for
+			SSLMate (<ulink url="https://sslmate.com">https://sslmate.com</ulink>), a service for
+			purchasing and managing SSL certificates.
+			SSLMate provides easy-to-use tools for buying,
+			renewing, and revoking certificates, for monitoring
+			the expiration date of your certificates, and for
+			synchronizing your certificates between your servers.
+		</para>
+
+		<para>
+			SSLMate emphasizes speed, ease-of-use, and automation.
+			For example, the command to purchase a certificate (<command>sslmate buy</command>)
+			typically completes in under a minute and automates the steps of generating a private key, generating a CSR,
+			and building a certificate bundle.  SSLMate can automatically renew your certificates,
+			and you can run <command>sslmate download</command> from a cron job so that renewed
+			certificates are automatically downloaded to your server.
+		</para>
+
+		<para>
+			To use the <command>sslmate</command> command, you must create
+			a free account at <ulink url="https://sslmate.com">https://sslmate.com</ulink>.
+		</para>
+	</refsect1>
+
+	<refsect1>
+		<title>Commands</title>
+
+		<para>
+			<command>sslmate</command> is logically divided into several sub-commands which
+			perform distinct tasks.  Each sub-command, and its arguments,
+			are documented below.  Note that arguments and options to sub-commands must be
+			specified on the command line <emphasis>after</emphasis> the name of the sub-command.
+		</para>
+
+		<variablelist>
+			<varlistentry>
+				<term><option>buy <arg choice="opt"><replaceable>OPTIONS</replaceable></arg> <arg choice="plain" rep="repeat"><replaceable>HOSTNAME</replaceable></arg></option></term>
+				<listitem>
+					<para>
+						Generate a private key and purchase a certificate for the given hostname(s).
+					</para>
+					<para>
+						If only one hostname is specified, a standard single-hostname certificate is issued.
+						The hostname is placed in the certificate's common name (CN) field as well as a
+						subjectAltName field.  Unless the hostname already starts with "www.", a subjectAltName is added,
+						free of charge, for the hostname prefixed with "www." (e.g. if the hostname is
+						"example.com", a subjectAltName is added for "www.example.com").
+					</para>
+					<para>
+						If the hostname starts with "*.", then a wildcard certificate is issued which is
+						valid for the wildcard domain itself and all hostnames directly below the wildcard
+						domain.  The certificate is not valid for hostnames two or more levels below the
+						wildcard domain.  For example, "*.example.com" matches "example.com", "www.example.com",
+						and "subdomain.example.com", but not "www.subdomain.example.com").
+					</para>
+					<para>
+						If more than one hostname is specified, a multi-hostname certificate is issued.  The first
+						hostname is the primary name of the certificate and is placed in the certificate's
+						common name field, as well as a subjectAltName field.  The remaining hostnames are
+						placed in subjectAltNames.  The certificate is referred to by its primary name
+						when downloading, renewing, reissuing, etc.  The primary name cannot be changed without
+						purchasing a new certificate, but alternative names can be added and removed after the certificate
+						is issued by running <command>sslmate edit</command>.
+					</para>
+
+					<para>
+						The following options are understood:
+					</para>
+					<variablelist>
+						<varlistentry>
+							<term><option>--auto-renew</option></term>
+							<term><option>--no-auto-renew</option></term>
+
+							<listitem>
+								<para>
+									Enable or disable automatic renewal for this certificate.
+									If neither option is specified, your account's default auto-renewal
+									setting is used.
+								</para>
+								<para>
+									The auto-renewal setting of an already-purchased certificate can be changed
+									from the SSLMate website.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--approval=email|dns|http</option></term>
+
+							<listitem>
+								<para>
+									Use the given method to prove ownership of your domain.
+								</para>
+								<para>
+									When "email" is used (the default), you must respond to an email sent
+									to one of the administrative addresses for your domain.  You will be
+									prompted for the email address when running <command>sslmate buy</command>,
+									or you can specify it on the command line with the
+									<option>--email=<replaceable>ADDRESS</replaceable></option> option.
+								</para>
+								<para>
+									When "dns" is used, you must add a specific DNS record under your domain.
+									If you have configured your SSLMate account to integrate with a supported
+									DNS provider (see <ulink url="https://sslmate.com/account/integrations">https://sslmate.com/account/integrations</ulink>),
+									then the DNS record will be added automatically.  Otherwise, the DNS record will
+									be displayed and you will need to add it manually.
+								</para>
+								<para>
+									When "http" is used, you must configure the web server for your domain
+									to proxy certain URLs to an SSLMate approval server, as described
+									at <ulink url="https://sslmate.com/help/approval/http">https://sslmate.com/help/approval/http</ulink>.
+									Once your web server is configured, certificates using
+									HTTP approval will be approved and issued automatically.
+								</para>
+								<para>
+									When purchasing a multi-hostname certificate, each hostname must be approved
+									separately.  The approval method specified by this option applies to every
+									hostname.  To use a different method for a hostname, specify an option of the form
+									<option>--approval=<replaceable>HOSTNAME</replaceable>=<replaceable>METHOD</replaceable></option>.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--email=<replaceable>ADDRESS</replaceable></option></term>
+
+							<listitem>
+								<para>
+									Send the approval email to the given email address.
+									This address must be one of the addresses that is listed when you run
+									<command>sslmate buy</command> interactively.  Only applicable if email approval is used.
+								</para>
+								<para>
+									When purchasing a multi-hostname certificate, this email address is used for
+									every hostname.  To use a different email address for a hostname, specify
+									an option of the form
+									<option>--email=<replaceable>HOSTNAME</replaceable>=<replaceable>ADDRESS</replaceable></option>.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--timeout=<replaceable>SECONDS</replaceable></option></term>
+
+							<listitem>
+								<para>
+									Wait up to <replaceable>SECONDS</replaceable> seconds for the certificate to be issued.
+									If the certificate is not issued before the timeout elapses, <command>sslmate</command>
+									exits without downloading any certificate files. Instead, the certificate must be downloaded
+									later with the <command>sslmate download</command> command.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--no-wait</option></term>
+
+							<listitem>
+								<para>
+									Return immediately after placing the order instead of waiting for the certificate
+									to be issued. If this option is used, no certificate files are downloaded; instead
+									the certificate must be downloaded separately with the <command>sslmate download</command>
+									command.
+								</para>
+								<para>
+									This option is equivalent to <option>--timeout 0</option>.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--temp</option></term>
+
+							<listitem>
+								<para>
+									Instead of waiting for the certificate to be issued, install a temporary, self-signed,
+									certificate and return immediately.  The temporary certificate will not be trusted
+									by clients, but it can be used to configure your server software while waiting for
+									the real certificate to be issued.
+								</para>
+								<para>
+									When the real certificate is issued, it can be downloaded
+									with the <command>sslmate download</command> command.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--ev</option></term>
+
+							<listitem>
+								<para>
+									Purchase an extended validation (EV) certificate, instead of a domain validation (DV)
+									certificate.
+								</para>
+								<para>
+									EV certificates provide equivalent security to DV certificates, but are subject to
+									a more rigorous approval process.  An EV certificate verifies not only that the bearer
+									of the certificate controls the domain in question, but also that the domain is owned by
+									a legally established business or organization with a verifiable identity.  When viewing
+									a website with an EV certificate, web browsers display a green address bar along with
+									the verified name of the organization.
+								</para>
+								<para>
+									To purchase EV certificates, you must first provide additional information about your
+									organization on your <ulink url="https://sslmate.com/account">online SSLMate account
+									page</ulink>.  Unlike a DV certificate, an EV certificate takes several days to issue
+									while your identity is verified.  When purchasing an EV certificate, <command>sslmate
+									buy</command> returns immediately with a temporary self-signed certificate (as if the
+									<option>--temp</option> had been specified).  When your real certificate is issued, you
+									will receive an email and be able to download it with the <command>sslmate download</command>
+									command.
+								</para>
+								<para>
+									If you're not sure what kind of certificate you need, buy a DV certificate (the default).
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--coupon=<replaceable>CODE</replaceable></option></term>
+
+							<listitem>
+								<para>
+									Use the given coupon code for a discount.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--invoice-note=<replaceable>NOTE</replaceable></option></term>
+
+							<listitem>
+								<para>
+									Include the given note with the invoice for this purchase.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--email-invoice-to=<replaceable>ADDRESS</replaceable></option></term>
+
+							<listitem>
+								<para>
+									Email the invoice for this purchase to the given address.
+								</para>
+								<para>
+									By default, invoices are not emailed, but can be downloaded from your
+									<ulink url="https://sslmate.com/dashboard">online SSLMate dashboard</ulink>.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>-f</option></term>
+							<term><option>--force</option></term>
+
+							<listitem>
+								<para>
+									Buy the certificate even if there are existing key and certificate files,
+									or if an active certificate with this name already exists in your SSLMate
+									account.  Existing key and certificate files will be overwritten.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--key-type=rsa|ecdsa</option></term>
+
+							<listitem>
+								<para>
+									Specify the type of key to generate: RSA (the default), or ECDSA
+									(elliptic curve). The certificate will be signed with a signature of the same type.
+								</para>
+								<para>
+									RSA provides the best compatibility with clients.  ECDSA provides
+									better performance during the TLS handshake, but is not supported
+									by older web browsers (such as IE 8 on Windows XP, Android 2.3,
+									and Java 6).  If in doubt, use RSA.
+								</para>
+								<para>
+									The default key type can be changed by setting the <option>key_type</option>
+									configuration option (see the CONFIGURATION section for details).
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--multi</option></term>
+
+							<listitem>
+								<para>
+									Buy a multi-hostname certificate even if only one hostname was specified
+									on the command line.  This option is only necessary if you want to buy a multi-hostname
+									certificate with only one hostname.
+								</para>
+							</listitem>
+						</varlistentry>
+					</variablelist>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>renew <arg choice="opt"><replaceable>OPTIONS</replaceable></arg> <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg></option></term>
+				<listitem>
+					<para>
+						Renew the certificate for the given hostname.
+					</para>
+
+					<para>
+						The following options are understood:
+					</para>
+					<variablelist>
+						<varlistentry>
+							<term><option>--timeout=<replaceable>SECONDS</replaceable></option></term>
+
+							<listitem>
+								<para>
+									Wait up to <replaceable>SECONDS</replaceable> seconds for the certificate to be issued.
+									If the certificate is not issued before the timeout elapses, <command>sslmate</command>
+									exits without downloading any certificate files. Instead, the certificate must be downloaded
+									later with the <command>sslmate download</command> command.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--no-wait</option></term>
+
+							<listitem>
+								<para>
+									Return immediately after placing the order instead of waiting for the new certificate
+									to be issued. If this option is used, no certificate files are downloaded; instead
+									the new certificate must be downloaded separately with the <command>sslmate download</command>
+									command.
+								</para>
+								<para>
+									This option is equivalent to <option>--timeout 0</option>.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--coupon=<replaceable>CODE</replaceable></option></term>
+
+							<listitem>
+								<para>
+									Use the given coupon code for a discount.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--invoice-note=<replaceable>NOTE</replaceable></option></term>
+
+							<listitem>
+								<para>
+									Include the given note with the invoice for this purchase.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--email-invoice-to=<replaceable>ADDRESS</replaceable></option></term>
+
+							<listitem>
+								<para>
+									Email the invoice for this purchase to the given address.
+								</para>
+								<para>
+									By default, invoices are not emailed, but can be downloaded from your
+									<ulink url="https://sslmate.com/dashboard">online SSLMate dashboard</ulink>.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>-f</option></term>
+							<term><option>--force</option></term>
+
+							<listitem>
+								<para>
+									Renew the certificate even if it's not about to expire.  Note that the
+									renewed certificate will expire one year from the today's date, not from
+									the expiration date of the current certificate.
+								</para>
+							</listitem>
+						</varlistentry>
+					</variablelist>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>reissue <arg choice="opt"><replaceable>OPTIONS</replaceable></arg> <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg></option></term>
+				<listitem>
+					<para>
+						Generate a new private key (unless <option>--same-key</option> is specified) and reissue the
+						certificate for the given hostname.
+					</para>
+					<para>
+						Note: <command>sslmate reissue</command> without the
+						<option>--same-key</option> option is deprecated.  Starting with SSLMate 2.0,
+						<option>--same-key</option> will be implied.  To reissue a certificate with a
+						new key, use <option>sslmate rekey</option> instead.
+					</para>
+					<para>
+						Reissuing a certificate does <emphasis>not</emphasis> revoke it. Use the <command>sslmate revoke</command>
+						command to revoke a certificate after you have reissued it.
+					</para>
+
+					<para>
+						The following options are understood:
+					</para>
+					<variablelist>
+						<varlistentry>
+							<term><option>--same-key</option></term>
+
+							<listitem>
+								<para>
+									Keep the same private key when reissuing.  This is useful if you are reissuing
+									a certificate not because of a lost key, but to add or remove the alternative
+									names of a multi-hostname certificate.
+								</para>
+								<para>
+									Note: Starting with SSLMate 2.0,
+									<option>--same-key</option> will be implied.  To reissue a certificate with a
+									new key, use <option>sslmate rekey</option> instead.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--timeout=<replaceable>SECONDS</replaceable></option></term>
+
+							<listitem>
+								<para>
+									Wait up to <replaceable>SECONDS</replaceable> seconds for the certificate to be issued.
+									If the certificate is not issued before the timeout elapses, <command>sslmate</command>
+									exits without downloading any certificate files. Instead, the certificate must be downloaded
+									later with the <command>sslmate download</command> command.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--no-wait</option></term>
+
+							<listitem>
+								<para>
+									Return immediately after requesting the reissue instead of waiting for the new certificate
+									to be issued. If this option is used, no certificate files are downloaded; instead
+									the new certificate must be downloaded separately with the <command>sslmate download</command>
+									command.
+								</para>
+								<para>
+									This option is equivalent to <option>--timeout 0</option>.
+								</para>
+							</listitem>
+						</varlistentry>
+					</variablelist>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>rekey <arg choice="opt"><replaceable>OPTIONS</replaceable></arg> <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg></option></term>
+				<listitem>
+					<para>
+						Generate a new private key and reissue the certificate for the given hostname.
+					</para>
+					<para>
+						Reissuing a certificate does <emphasis>not</emphasis> revoke it. Use the <command>sslmate revoke</command>
+						command to revoke a certificate after you have rekeyed it.
+					</para>
+
+					<para>
+						The following options are understood:
+					</para>
+					<variablelist>
+						<varlistentry>
+							<term><option>--timeout=<replaceable>SECONDS</replaceable></option></term>
+
+							<listitem>
+								<para>
+									Wait up to <replaceable>SECONDS</replaceable> seconds for the certificate to be issued.
+									If the certificate is not issued before the timeout elapses, <command>sslmate</command>
+									exits without downloading any certificate files. Instead, the certificate must be downloaded
+									later with the <command>sslmate download</command> command.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--no-wait</option></term>
+
+							<listitem>
+								<para>
+									Return immediately after requesting the rekey instead of waiting for the new certificate
+									to be issued. If this option is used, no certificate files are downloaded; instead
+									the new certificate must be downloaded separately with the <command>sslmate download</command>
+									command.
+								</para>
+								<para>
+									This option is equivalent to <option>--timeout 0</option>.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>-f</option></term>
+							<term><option>--force</option></term>
+
+							<listitem>
+								<para>Overwrite existing files.</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--key-type=rsa|ecdsa</option></term>
+
+							<listitem>
+								<para>
+									Specify the type of the new key: RSA (the default), or ECDSA
+									(elliptic curve). The certificate will be signed with a signature of the same type.
+								</para>
+								<para>
+									See the documentation for <command>sslmate buy</command> for more information.
+									If in doubt, do not use this option.
+								</para>
+							</listitem>
+						</varlistentry>
+					</variablelist>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>revoke <arg choice="opt"><replaceable>OPTIONS</replaceable></arg> <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg></option></term>
+				<listitem>
+					<para>
+						Revoke the certificate(s) for the given hostname.
+					</para>
+					<para>
+						Revoking a certificate does <emphasis>not</emphasis> issue a new certificate.
+						If you need a new certificate, use the <command>sslmate reissue</command> command
+						to generate and issue a new certificate <emphasis>before</emphasis> running
+						<command>sslmate revoke</command>.
+					</para>
+
+					<para>
+						The following options are understood:
+					</para>
+					<variablelist>
+						<varlistentry>
+							<term><option>-a</option></term>
+							<term><option>--all</option></term>
+
+							<listitem>
+								<para>
+									Revoke <emphasis>all</emphasis> certificates for this hostname, including the
+									most recent active certificate.  If this option is omitted, all but
+									the most recent active certificate are revoked.
+								</para>
+								<para>
+									WARNING: if you use this option, SSLMate will no longer be able to
+									issue new certificates for this hostname unless you buy a brand new
+									certificate.  Generally, to revoke a certificate, you should first reissue it with the
+									<command>reissue</command> command and then use <command>revoke</command>
+									<emphasis>without</emphasis> the <option>--all</option> option.  Only use
+									<option>--all</option> if you no longer need any certificates for a hostname.
+								</para>
+								<para>
+									You will be prompted for confirmation unless you also specify the
+									<option>--batch</option> global option.
+								</para>
+							</listitem>
+						</varlistentry>
+					</variablelist>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>download <arg choice="opt"><replaceable>OPTIONS</replaceable></arg> <arg choice="plain" rep="repeat"><replaceable>HOSTNAME</replaceable></arg></option></term>
+				<listitem>
+					<para>
+						Download the certificate(s) for the given hostname(s), or, if <option>--all</option> is specified,
+						for all hostnames that have keys in the <parameter>key_directory</parameter>.
+					</para>
+					<para>
+						Certificate files are downloaded from your SSLMate account
+						to your configured <parameter>cert_directory</parameter> (<filename>/etc/sslmate</filename>
+						by default if run as root, <filename>$PWD</filename> if run as non-root).  Existing certificate
+						files are replaced.  Exits with status code 0 if new certificate files were downloaded, or 10
+						if the most up-to-date certificate files have already been downloaded.
+					</para>
+					<para>
+						This command is designed to be run from a cron job or configuration management script so that
+						auto-renewed certificates are automatically propagated to your server.  You can check the
+						exit status and, if zero, restart daemons so they load the latest version of the certificate.
+					</para>
+					<para>
+						The following options are understood:
+					</para>
+					<variablelist>
+						<varlistentry>
+							<term><option>-a</option></term>
+							<term><option>--all</option></term>
+
+							<listitem>
+								<para>
+									Download certificate files for every key present in the <parameter>key_directory</parameter>
+									(<filename>/etc/sslmate</filename> by default if run as root, <filename>$PWD</filename>
+									if run as non-root).
+								</para>
+								<para>
+									If this option is used, specific hostnames cannot be specified on the command line.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--temp</option></term>
+
+							<listitem>
+								<para>
+									If the certificate has not been issued yet, download a temporary,
+									self-signed, certificate instead.  See the documentation for <command>sslmate buy</command>
+									for more information about temporary certificates.
+								</para>
+							</listitem>
+						</varlistentry>
+					</variablelist>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>list <arg choice="opt"><replaceable>OPTIONS</replaceable></arg></option></term>
+				<listitem>
+					<para>
+						List the certificates in your SSLMate account.
+					</para>
+					<para>
+						The following options are understood:
+					</para>
+					<variablelist>
+						<varlistentry>
+							<term><option>--local</option></term>
+
+							<listitem>
+								<para>
+									List only certificates that are also installed locally.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--no-local</option></term>
+
+							<listitem>
+								<para>
+									List only certificates that are <emphasis>not</emphasis> installed locally.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>-c <replaceable>COLUMNS</replaceable></option></term>
+							<term><option>--columns=<replaceable>COLUMNS</replaceable></option></term>
+
+							<listitem>
+								<para>
+									Include the given columns in the output, where <replaceable>COLUMNS</replaceable> is
+									a comma-separated list of the following column names:
+								</para>
+								<variablelist>
+									<varlistentry>
+										<term>name</term>
+										<listitem><para>The certificate's common name.</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>status</term>
+										<listitem><para>The certificate's status.</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>expiration</term>
+										<listitem><para>The certificate's expiration date, in YYYY-MM-DD format.</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>local_status</term>
+										<listitem><para>The status of the locally-installed copy of the certificate ("Installed", "Temporary", "Mismatched key", "No key file", "Out-of-date", or "None").</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>fingerprint</term>
+										<listitem><para>The certificate's SHA-1 fingerprint, in uppercase hex with octets separated by colons.</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>sha256_fingerprint</term>
+										<listitem><para>The certificate's SHA-256 fingerprint, in uppercase hex with octets separated by colons.</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>auto_renew</term>
+										<listitem><para>The certificate's auto-renew setting.</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>type</term>
+										<listitem><para>The certificate's type ("DV" or "EV").</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>approval_method</term>
+										<listitem><para>The approval method.</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>approver_email</term>
+										<listitem><para>The approver email address.</para></listitem>
+									</varlistentry>
+									<!--
+									<varlistentry>
+										<term>approval_email_from</term>
+										<listitem><para>The email address from which the approval email is sent.</para></listitem>
+									</varlistentry>
+									-->
+								</variablelist>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--sort=<replaceable>COLUMNS</replaceable></option></term>
+
+							<listitem>
+								<para>
+									Sort the output by the given column(s), where <replaceable>COLUMNS</replaceable> is
+									a comma-separated list of column names as understood by the <option>--columns</option>
+									option.  If more than one column is specified, the latter columns are used to break
+									ties if the earlier columns are equal.
+								</para>
+								<para>
+									Columns are sorted in ascending order by default.  To sort a column in descending
+									order, prefix it with a ^ symbol.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>-z</option></term>
+
+							<listitem>
+								<para>
+									Generate machine-parseable output.  By default, columns and lines are separated by a
+									NUL character, but this can be customized by setting the <varname>OFS</varname>
+									(output field separator) and <varname>ORS</varname> (output record separator) environment
+									variables.
+								</para>
+								<para>
+									When using <option>-z</option>, you must explicitly enumerate the columns you
+									want with the <option>--columns</option> option.
+								</para>
+								<para>
+									The output of <option>-z</option> is guaranteed not to change format, making it suitable
+									for use in scripts.
+								</para>
+							</listitem>
+						</varlistentry>
+					</variablelist>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>show <arg choice="opt"><replaceable>OPTIONS</replaceable></arg> <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg></option></term>
+				<listitem>
+					<para>
+						Show information about the given certificate.
+					</para>
+					<para>
+						The following options are understood:
+					</para>
+					<variablelist>
+						<varlistentry>
+							<term><option>-f <replaceable>FIELDS</replaceable></option></term>
+							<term><option>--fields=<replaceable>FIELDS</replaceable></option></term>
+
+							<listitem>
+								<para>
+									Include the given fields in the output, where <replaceable>FIELDS</replaceable> is
+									a comma-separated list of the following column names:
+								</para>
+								<variablelist>
+									<varlistentry>
+										<term>name</term>
+										<listitem><para>The certificate's common name.</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>alt_names</term>
+										<listitem><para>The certificate's subject alternative names (for multi-hostname certs only).</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>status</term>
+										<listitem><para>The certificate's status.</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>expiration</term>
+										<listitem><para>The certificate's expiration date, in YYYY-MM-DD format.</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>local_status</term>
+										<listitem><para>The status of the locally-installed copy of the certificate ("Installed", "Temporary", "Mismatched key", "No key file", "Out-of-date", or "None").</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>fingerprint</term>
+										<listitem><para>The certificate's SHA-1 fingerprint, in uppercase hex with octets separated by colons.</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>sha256_fingerprint</term>
+										<listitem><para>The certificate's SHA-256 fingerprint, in uppercase hex with octets separated by colons.</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>auto_renew</term>
+										<listitem><para>The certificate's auto-renew setting.</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>type</term>
+										<listitem><para>The certificate's type ("DV" or "EV").</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>approval_method</term>
+										<listitem><para>The approval method.</para></listitem>
+									</varlistentry>
+									<varlistentry>
+										<term>approver_email</term>
+										<listitem><para>The approver email address.</para></listitem>
+									</varlistentry>
+									<!--
+									<varlistentry>
+										<term>approval_email_from</term>
+										<listitem><para>The email address from which the approval email is sent.</para></listitem>
+									</varlistentry>
+									-->
+								</variablelist>
+							</listitem>
+						</varlistentry>
+						<!--
+						<varlistentry>
+							<term><option>-z</option></term>
+
+							<listitem>
+								<para>
+									Generate machine-parseable output.  By default, columns and lines are separated by a
+									NUL character, but this can be customized by setting the <varname>OFS</varname>
+									(output field separator) and <varname>ORS</varname> (output record separator) environment
+									variables.
+								</para>
+								<para>
+									When using <option>-z</option>, you must explicitly enumerate the fields you
+									want with the <option>- -fields</option> option.
+								</para>
+								<para>
+									The output of <option>-z</option> is guaranteed not to change format, making it suitable
+									for use in scripts.
+								</para>
+							</listitem>
+						</varlistentry>
+						-->
+						<varlistentry>
+							<term><option>--json</option></term>
+
+							<listitem>
+								<para>
+									Generate JSON output.  The output format is guaranteed not to change, apart from
+									backwards-compatible changes such as adding new fields to the JSON object.
+								</para>
+							</listitem>
+						</varlistentry>
+					</variablelist>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>edit <arg choice="plain" rep="repeat"><replaceable>OPTIONS</replaceable></arg> <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg></option></term>
+				<listitem>
+					<para>
+						Change one or more setting of the given certificate.  The settings are specified by the
+						<replaceable>OPTIONS</replaceable> arguments, as described below.	Every setting is
+						optional; if omitted, the setting is left unchanged.
+					</para>
+					<variablelist>
+						<varlistentry>
+							<term><option>--approval=email|dns|http</option></term>
+
+							<listitem>
+								<para>
+									Change the approval method for this certificate.  The new method will be
+									used for approving future reissues and renewals of the certificate.  If the
+									certificate is currently pending approval, the approval process will be
+									re-initiated.
+								</para>
+								<para>
+									For more information about approval methods, see the documentation
+									for <command>sslmate buy</command>.
+								</para>
+								<para>
+									If this is a multi-hostname certificate, the approval method specified by this option
+									applies to every hostname.  To edit the approval method for a single hostname only,
+									pass an option of the form
+									<option>--approval=<replaceable>HOSTNAME</replaceable>=<replaceable>METHOD</replaceable></option>.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--email=<replaceable>ADDRESS</replaceable></option></term>
+
+							<listitem>
+								<para>
+									Change the approver email address of this certificate.  The new address will be
+									used for approving future reissues and renewals of the certificate.  If the
+									certificate is currently pending approval, the approval email will be resent
+									to the new address.
+								</para>
+								<para>
+									The new address must be one of the acceptable addresses that is listed when you
+									run <command>sslmate buy</command> for this host name.  This option is only
+									applicable when email approval is used.
+								</para>
+								<para>
+									If this is a multi-hostname certificate, the email address specified by this option
+									applies to every hostname.  To edit the email address for a single hostname only,
+									pass an option of the form
+									<option>--email=<replaceable>HOSTNAME</replaceable>=<replaceable>METHOD</replaceable></option>.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--auto-renew</option></term>
+							<term><option>--no-auto-renew</option></term>
+
+							<listitem>
+								<para>
+									Enable or disable auto-renew for this certificate.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--add-name=<replaceable>HOSTNAME</replaceable></option></term>
+							<term><option>--rm-name=<replaceable>HOSTNAME</replaceable></option></term>
+
+							<listitem>
+								<para>
+									Add or remove the given hostname to or from this certificate.
+									This certificate must be a multi-hostname certificate, and only
+									alternative names (not the common name) can be removed.
+								</para>
+								<para>
+									The name is not added or removed immediately.  Instead,
+									the changes take effect on the next call to <command>sslmate reissue</command>.
+									Any names that were added since the last issuance will need to be approved.
+									Existing names do not need to be re-approved as long as you preserve the
+									existing private key by passing the <option>--same-key</option> option to
+									<command>sslmate reissue</command>.  If there has been a net increase in hostnames
+									since the last issuance, your account will be charged for the new names.
+								</para>
+								<para>
+									Note that removing all alternative hostnames does not convert the
+									certificate to a single-hostname certificate.  For that, you must
+									use the <option>--no-multi</option> option.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--multi</option></term>
+							<term><option>--no-multi</option></term>
+
+							<listitem>
+								<para>
+									Change the scope of this certificate (single-hostname or multi-hostname).
+									See the <command>sslmate buy</command> documentation for a discussion of the differences.
+								</para>
+								<para>
+									Changes to the certificate scope take effect only when renewing.  To "upgrade" an existing
+									single-hostname certificate to a multi-hostname certificate, first edit its scope
+									and add alternative names with <command>sslmate edit</command> and then
+									force an early renewal with <command>sslmate renew --force</command>.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--type=dv|ev</option></term>
+
+							<listitem>
+								<para>
+									Change the type of this certificate (domain validation or extended validation).
+									See the <command>sslmate buy</command> documentation for a discussion of certificate types.
+								</para>
+								<para>
+									Changes to the certificate type take effect only when renewing.  To "upgrade" an existing
+									DV certificate to EV, first change its type with <command>sslmate edit</command> and then
+									force an early renewal with <command>sslmate renew --force</command>.
+								</para>
+							</listitem>
+						</varlistentry>
+					</variablelist>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>import <arg choice="opt"><replaceable>OPTIONS</replaceable></arg> <arg choice="plain"><replaceable>KEYFILE</replaceable></arg> <arg choice="plain"><replaceable>CERTFILE</replaceable></arg></option></term>
+				<listitem>
+					<para>
+						Import the given certificate to your SSLMate account.
+						An imported certificate works just like a certificate purchased from SSLMate with
+						<command>sslmate buy</command>, meaning SSLMate will monitor its expiration and you
+						can set up automated renewals for it.
+					</para>
+
+					<para>
+						You must specify the paths to the key file (<arg choice="plain"><replaceable>KEYFILE</replaceable></arg>)
+						and to the certificate file (<arg choice="plain"><replaceable>CERTFILE</replaceable></arg>).  Note that
+						the private key is <emphasis>not</emphasis> uploaded to SSLMate; <command>sslmate</command>
+						only uses it to generate a certificate signing request.
+					</para>
+
+					<para>
+						The following options are understood:
+					</para>
+					<variablelist>
+						<varlistentry>
+							<term><option>--auto-renew</option></term>
+							<term><option>--no-auto-renew</option></term>
+
+							<listitem>
+								<para>
+									Enable or disable automatic renewal for this certificate.
+									If neither option is specified, your account's default auto-renewal
+									setting is used.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--no-install</option></term>
+
+							<listitem>
+								<para>
+									Don't install the key and certificate files to the local key and certificate directories.
+									(By default, keys and certificates are copied there, as if the certificate had just been
+									purchased with the <command>sslmate buy</command> command.)
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--approval=email|dns|http</option></term>
+
+							<listitem>
+								<para>
+									When renewing, use the given method to prove ownership of your domain.
+								</para>
+								<para>
+									For more information about approval methods, see the documentation
+									for <command>sslmate buy</command>.
+								</para>
+								<para>
+									If this is a multi-hostname certificate, the approval method specified by this option
+									applies to every hostname.  To specify a different approval method for a particular
+									hostname, pass an option of the form
+									<option>--approval=<replaceable>HOSTNAME</replaceable>=<replaceable>METHOD</replaceable></option>.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--email=<replaceable>ADDRESS</replaceable></option></term>
+
+							<listitem>
+								<para>
+									When renewing, send the domain ownership email to the given email address instead of
+									prompting for one.  This address must be one of the addresses that is listed when you run
+									<command>sslmate import</command> interactively.  This option is only applicable when
+									email approval is used.
+								</para>
+								<para>
+									If this is a multi-hostname certificate, the email address specified by this option
+									applies to every hostname.  To specify a different email address for a particular
+									hostname, pass an option of the form
+									<option>--approval=<replaceable>HOSTNAME</replaceable>=<replaceable>METHOD</replaceable></option>.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>-f</option></term>
+							<term><option>--force</option></term>
+
+							<listitem>
+								<para>
+									Import the certificate even if there are existing key and certificate files,
+									or if an active certificate with this name already exists in your SSLMate
+									account.  Existing key and certificate files will be overwritten.
+								</para>
+							</listitem>
+						</varlistentry>
+					</variablelist>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>test <arg choice="opt"><replaceable>OPTIONS</replaceable></arg> <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg></option></term>
+				<listitem>
+					<para>
+						Test whether your certificate for <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg>
+						has been correctly installed.
+					</para>
+					<para>
+						This command works by connecting to the host specified in the certificate
+						and checking that the server returns both the correct certificate and the correct certificate chain.
+						The results of the test are printed to standard out.  There may be more than one test result if
+						<arg choice="plain"><replaceable>HOSTNAME</replaceable></arg> resolves to more than one IP address.
+						This command exits with status 0 if all tests were successful, 11 if one or more tests failed,
+						and some other exit code if there was an error that prevented the test from running.
+					</para>
+					<para>
+						The following options are understood:
+					</para>
+					<variablelist>
+						<varlistentry>
+							<term><option>-p <replaceable>PORTNUMBER</replaceable></option></term>
+							<term><option>--port=<replaceable>PORTNUMBER</replaceable></option></term>
+
+							<listitem>
+								<para>
+									Test the server on the given port number. (Default: 443)
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>-h <replaceable>HOSTNAME</replaceable></option></term>
+							<term><option>--host=<replaceable>HOSTNAME</replaceable></option></term>
+
+							<listitem>
+								<para>
+									Test the server running on the given hostname.  Defaults to the
+									certificate's common name.
+								</para>
+							</listitem>
+						</varlistentry>
+					</variablelist>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>mkconfig <arg choice="opt"><replaceable>OPTIONS</replaceable></arg> <arg choice="plain"><replaceable>TEMPLATE</replaceable></arg> <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg></option></term>
+				<listitem>
+					<para>
+						Output the configuration directives necessary to securely use the given certificate
+						with the server software (such as Apache, nginx, etc.) specified by the
+						<arg choice="plain"><replaceable>TEMPLATE</replaceable></arg> argument.
+						For a list of server software for which configuration templates are available,
+						pass the <option>--templates</option> option.
+					</para>
+					<para>
+						By default, <command>sslmate mkconfig</command> includes the "intermediate compatibility" security settings
+						recommended by <ulink url="https://wiki.mozilla.org/Security/Server_Side_TLS">Mozilla's Server Side
+						TLS Guide</ulink>.  These settings enable forward secrecy and disable broken ciphers and protocols,
+						while supporting a broad range of clients.
+					</para>
+					<para>
+						The following options are understood:
+					</para>
+					<variablelist>
+						<varlistentry>
+							<term><option>--templates</option></term>
+
+							<listitem>
+								<para>
+									Output a list of available configuration templates.  No other arguments are
+									required if you use this option.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--no-security</option></term>
+
+							<listitem>
+								<para>
+									Don't include recommended security settings.  Output only the bare minimum
+									configuration needed to use the certificate.
+								</para>
+							</listitem>
+						</varlistentry>
+					</variablelist>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>retry-approval <arg choice="plain"><replaceable>HOSTNAME</replaceable></arg></option></term>
+				<listitem>
+					<para>
+						Retry the approval process of a certificate that's pending approval.
+						If the certificate uses email approval, the email will be resent.
+						If the certificate uses DNS approval, the DNS record will be added
+						if not already present, and then re-checked.
+					</para>
+					<para>
+						To change the approval method or approver email of a pending certificate,
+						use the <command>sslmate edit</command> command.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>link</option></term>
+				<listitem>
+					<para>
+						Link this system with your SSLMate account.
+						<command>sslmate link</command> prompts for your SSLMate username and
+						password and writes your API credentials to your personal SSLMate configuration
+						file, permitting you to use the <command>sslmate</command> commands without
+						having to enter your username and password.
+					</para>
+					<para>
+						Note: if you have enabled a daily purchase limit through your
+						<ulink url="https://sslmate.com/account">online SSLMate account page</ulink>,
+						you will always need to enter your password after exceeding the limit, even if
+						you have linked this system.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>help <arg choice="opt"><replaceable>COMMAND</replaceable></arg></option></term>
+				<listitem>
+					<para>
+						Display help for the given <arg choice="plain"><replaceable>COMMAND</replaceable></arg>,
+						or an overview of all commands if no command is specified.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>version <arg choice="opt"><replaceable>OPTIONS</replaceable></arg></option></term>
+				<listitem>
+					<para>
+						Print the currently-installed version of <command>sslmate</command>.  By default,
+						check if this version is up-to-date and print a message if a newer version is available.
+					</para>
+					<para>
+						The following options are understood:
+					</para>
+					<variablelist>
+						<varlistentry>
+							<term><option>--no-check</option></term>
+
+							<listitem>
+								<para>Do not check for a newer version.</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term><option>--is-latest</option></term>
+
+							<listitem>
+								<para>
+									Print no output, but exit with 0 if this version of <command>sslmate</command>
+									is up-to-date, 10 if a newer version is available, and some other exit code
+									if there is an error.
+								</para>
+								<para>
+									This option cannot be combined with <option>--no-check</option>.
+								</para>
+							</listitem>
+						</varlistentry>
+					</variablelist>
+				</listitem>
+			</varlistentry>
+
+		</variablelist>
+	</refsect1>
+
+	<refsect1>
+		<title>Global options</title>
+
+		<para>
+			The following options are understood by <command>sslmate</command> and can
+			be used with any sub-command.  Since they apply globally
+			to <command>sslmate</command>, they must be specified on the command line
+			<emphasis>before</emphasis> the sub-command name.
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term><option>--batch</option></term>
+
+				<listitem>
+					<para>
+						Don't prompt for confirmation or for additional information.  This
+						option should be used when running <command>sslmate</command> unattended from scripts.
+					</para>
+					<para>
+						Any information which <command>sslmate</command> would have prompted for must be specified
+						on the command line instead.  For example, when buying a certificate,
+						you must specify the approval method with the <option>--approval</option>
+						option, and, if applicable, the approver email address with the
+						<option>--email=<replaceable>ADDRESS</replaceable></option> option.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><option>--verbose</option></term>
+
+				<listitem>
+					<para>
+						Display additional information about what <command>sslmate</command> is doing.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><option>-p <replaceable>PROFILE</replaceable></option></term>
+				<term><option>--profile=<replaceable>PROFILE</replaceable></option></term>
+
+				<listitem>
+					<para>
+						Use the given configuration profile, instead of the default.
+						If this option is specified, the string "-<replaceable>PROFILE</replaceable>"
+						will be appended to the paths of the configuration file and default key and
+						certificate directories.
+					</para>
+					<para>
+						For example, if <option>--profile=company</option>
+						is used, the global configuration file will be <filename>/etc/sslmate-company.conf</filename>
+						and the default certificate directory will be <filename>/etc/sslmate-company</filename>,
+						instead of <filename>/etc/sslmate.conf</filename> and <filename>/etc/sslmate</filename>.
+					</para>
+					<para>
+						This option is intended for those who need to use several different SSLMate
+						accounts on a single server, since each configuration file can contain distinct
+						SSLMate API credentials.
+					</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+	</refsect1>
+	<refsect1>
+		<title>Configuration</title>
+		<para>
+			Upon startup, <command>sslmate</command> reads configuration from the global configuration
+			file, <filename>/etc/sslmate.conf</filename>, and your personal configuration file,
+			<filename>~/.sslmate</filename>, if they exist.  These files should contain one configuration
+			option per line of the form <userinput><replaceable>NAME</replaceable> <replaceable>VALUE</replaceable></userinput>.
+			Blank lines and lines starting with <token>#</token> are ignored.  Options in your personal configuration
+			file override options set in the global configuration file.  The location of your personal configuration
+			file can be changed by setting the <varname>$SSLMATE_CONFIG</varname> environment variable.
+		</para>
+		<para>
+			The following options are understood:
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term><option>api_key <replaceable>KEY</replaceable></option></term>
+				<listitem><para>Your API key, which can be found on your <ulink url="https://sslmate.com/account">online SSLMate account page</ulink>. This option is automatically set (in your personal configuration file) when you run <command>sslmate link</command>.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><option>key_directory <replaceable>PATH</replaceable></option></term>
+				<term><option>cert_directory <replaceable>PATH</replaceable></option></term>
+				<listitem><para>The directories where <command>sslmate</command> places keys and certificates. When running as root, the default is <filename>/etc/sslmate</filename>. When running as non-root, the default is the current working directory.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><option>wildcard_filename <replaceable>PREFIX</replaceable></option></term>
+				<listitem><para>When creating files for wildcard certificates, use <replaceable>PREFIX</replaceable> in the filename instead of a * character.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><option>cert_format.<replaceable>FORMAT</replaceable> yes|no</option></term>
+				<listitem>
+					<para>
+						Enable or disable the given certificate format.  When a format is enabled,
+						<command>sslmate</command> will create a file of that format in your certificate
+						directory when buying, reissuing, renewing, and downloading.  After enabling
+						a format that was previously disabled, you can create the missing files by running
+						<command>sslmate download --all</command>.  The formats are documented below in
+						the CERTIFICATE FILES section.  All formats are disabled by default except for "chained".
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><option>key_type rsa|ecdsa</option></term>
+				<listitem><para>The key type to use by default when buying or reissuing a certificate.  Can be overridden by the <option>--key-type</option> command line flag.  See the documentation for <command>sslmate buy</command> for details.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><option>api_endpoint <replaceable>URI</replaceable></option></term>
+				<listitem><para>The URI to the SSLMate API endpoint. This option does not need to be configured under normal circumstances.</para></listitem>
+			</varlistentry>
+		</variablelist>
+	</refsect1>
+
+	<refsect1>
+		<title>Configuration files</title>
+		<variablelist>
+			<varlistentry>
+				<term><filename>~/.sslmate</filename></term>
+				<listitem><para>Your personal configuration file.  Options set in this file override options set in the global configuration file.  See the "Configuration" section above for the syntax of this file.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><filename>/etc/sslmate.conf</filename></term>
+				<listitem><para>The global configuration file.  See the "Configuration" section above for the syntax of this file.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><filename>/etc/sslmate</filename></term>
+				<listitem><para>The default directory for storing keys and certificates when run as root.  Can be overridden by the <parameter>key_directory</parameter> and <parameter>cert_directory</parameter> configuration options.</para></listitem>
+			</varlistentry>
+		</variablelist>
+	</refsect1>
+
+	<refsect1>
+		<title>Certificate files</title>
+		<para>
+			SSLMate creates the following files for every certificate.  The key file is placed in the
+			configured <parameter>key_directory</parameter>, and the other files are placed in the configured
+			<parameter>cert_directory</parameter>.	(Both directories are <filename>/etc/sslmate</filename> by default when
+			running as root and <filename>$PWD</filename> by default when running as non-root.)
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term><filename><replaceable>hostname</replaceable>.key</filename></term>
+				<listitem><para>The private key file for <replaceable>hostname</replaceable>, in PEM encoding (specifically, the PEM encoding of the ASN.1 DER encoding of a PKCS#1 RSAPrivateKey (for RSA) or a RFC 3279 EcpkParameters (for ECDSA)).  This is the default format used by OpenSSL and is accepted by typical applications on Linux.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><filename><replaceable>hostname</replaceable>.crt</filename></term>
+				<listitem><para>The public certificate file for <replaceable>hostname</replaceable>, in PEM encoding (specifically, the PEM encoding of the ASN.1 DER encoding of the X.509 certificate). This is the default format used by OpenSSL and is accepted by typical applications on Linux. <emphasis>Warning:</emphasis> This file does not work on its own since it does not contain the certificate chain.  You must also configure the chain certificate(s) using one of the other formats.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><filename><replaceable>hostname</replaceable>.chain.crt</filename></term>
+				<listitem><para>The certificate chain (aka intermediate certificate) file for <replaceable>hostname</replaceable>.  This file contains the concatenation of each intermediate certificate, in PEM encoding.  The first certificate is the issuer of the end-entity certificate, and the last certificate is signed by the root certificate.  The root certificate is not included.</para></listitem>
+			</varlistentry>
+		</variablelist>
+		<para>SSLMate optionally creates the following files for every certificate (in the <parameter>cert_directory</parameter>) if the indicated configuration option is set to yes.</para>
+		<variablelist>
+			<varlistentry>
+				<term><filename><replaceable>hostname</replaceable>.chained.crt</filename> (cert_format.chained)</term>
+				<listitem><para>A concatenation of the certificate and chain files for <replaceable>hostname</replaceable>, in PEM encoding.  This format is enabled by default.  This is the file you should use with most applications on Linux, which require the certificate and chain to be specified in the same file.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><filename><replaceable>hostname</replaceable>.combined.pem</filename> (cert_format.combined)</term>
+				<listitem><para>A concatenation of the private key, certificate, and chain files for <replaceable>hostname</replaceable>, in PEM encoding.  This format is intended for Linux applications which require the key and certificates to be specified in the same file.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><filename><replaceable>hostname</replaceable>.p12</filename> (cert_format.p12)</term>
+				<listitem><para>A PKCS#12 file (also known as a P12 or PFX file) containing the private key, certificate, and chain for <replaceable>hostname</replaceable>.  The PKCS#12 file's password is "sslmate". PKCS#12 files are primarily used by Windows applications.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><filename><replaceable>hostname</replaceable>.jks</filename> (cert_format.jks)</term>
+				<listitem><para>A Java keystore file containing the private key, certificate, and chain for <replaceable>hostname</replaceable>.  The keystore's password is "sslmate".  The <command>keytool(1)</command> command, from the Java runtime environment, must be installed to use this format.  JKS files are generally used only by Java applications, such as Tomcat.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><filename><replaceable>hostname</replaceable>.root.crt</filename> (cert_format.root)</term>
+				<listitem><para>The root certificate for <replaceable>hostname</replaceable>, in PEM encoding.  You do <emphasis>not</emphasis> generally need the root certificate, so you should leave this format disabled unless you have a special requirement.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><filename><replaceable>hostname</replaceable>.chain+root.crt</filename> (cert_format.chain+root)</term>
+				<listitem><para>A concatenation of the chain and root certificate files for <replaceable>hostname</replaceable>.  This format is required for verifying OCSP responses and configuring OCSP stapling.  You do not need it in a basic configuration.</para></listitem>
+			</varlistentry>
+		</variablelist>
+		<para>
+			You need to configure your server software (e.g. Apache, nginx) with the private key
+			file (.key) and some combination of the .crt files. Some software (e.g. Apache) requires you
+			to specify the certificate (.crt) and the chain (.chain.crt) in separate files, while other
+			software (e.g. nginx) requires you to specify both in a single file (.chained.crt).
+		</para>
+		<para>
+			Files which contain the private key are created with restrictive filesystem permissions (0600),
+			and other files are created with world-readable permissions (0644).  When updating
+			a file, <command>sslmate</command> preserves the existing owner and permissions, including
+			(on Linux only) ACLs.  This lets you use filesystem permissions to grant access to
+			applications that run as a non-root user, and not have to worry about the permissions being
+			disrupted when downloading an updated certificate.
+		</para>
+		<para>
+			You are encouraged to run <command>sslmate</command> as root, store keys and certificates in the SSLMate-managed
+			<parameter>key_directory</parameter> and <parameter>cert_directory</parameter>
+			(<filename>/etc/sslmate</filename> by default), and to configure your server software to refer
+			to keys and certificates in this directory.  This makes automated renewals more seamless by
+			ensuring that your server software always refers to the latest version
+			of a certificate downloaded by <command>sslmate download</command>.
+		</para>
+	</refsect1>
+
+	<refsect1>
+		<title>Environment Variables</title>
+
+		<variablelist class='environment-variables'>
+			<varlistentry>
+				<term><varname>SSLMATE_CONFIG</varname></term>
+				<listitem>
+					<para>The path to your personal configuration file. Defaults to <filename>$HOME/.sslmate</filename>.</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+	</refsect1>
+
+	<!-- TODO: examples section
+	<refsect1>
+		<title>Examples</title>
+
+		<para>Hello world?</para>
+	</refsect1>
+	-->
+
+	<refsect1>
+		<title>See Also</title>
+		<para>
+			<ulink url="https://sslmate.com/help">Online SSLMate Help</ulink>,
+			<citerefentry><refentrytitle>openssl</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+		</para>
+	</refsect1>
+
+</refentry>
