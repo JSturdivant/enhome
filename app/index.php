@@ -1,429 +1,713 @@
-<html>
-    <head>
-    <?php  include_once('../functions.php'); ?>
-      
-    </head>
-<body onload=''>
-         <?php print_r(getHeader('App'));?>
-        <script>
-             var userData = <?php print_r(json_encode($userData));?>;
-             
-             log(userData.email);
-            // test
-            
-            // FACEBOOK SDK https://developers.facebook.com/apps/831655413710934/fb-login/quickstart/
-                //<script>
-                  window.fbAsyncInit = function() {
-                    FB.init({
-                      appId      : '831655413710934',
-                      cookie     : true,
-                      xfbml      : true,
-                      version    : 'v3.1'
-                    });
+<?php include_once("../functions.php"); getHeader("enHome App");?>
 
-                    FB.AppEvents.logPageView();   
+<style>
+    .assetCard {
+        background-color: #fafafa;
+        border-radius: 20px;
+        border: 1px solid #eee;
+        box-shadow: 3px 3px 3px #fff;
+        padding: 10px;
+        margin: 10px;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+        -webkit-transition: 0.5s ease-out;
+        -moz-transition: 0.5s ease-out;
+        -o-transition: 0.5s ease-out;
+        transition: 0.5s ease-out;
+    }
 
-                  };
+    .assetCard:hover {
+        background-color: #fafafa;
+        border: 1px solid #ccc;
+        box-shadow: 3px 3px 3px #ccc;
+    }
 
-                  (function(d, s, id){
-                     var js, fjs = d.getElementsByTagName(s)[0];
-                     if (d.getElementById(id)) {return;}
-                     js = d.createElement(s); js.id = id;
-                     js.src = "https://connect.facebook.net/en_US/sdk.js";
-                     fjs.parentNode.insertBefore(js, fjs);
-                   }(document, 'script', 'facebook-jssdk'));
-               //< /script>
+    .assetPage {
+        background-color: #fff;
+        border-radius: 20px;
+        border: 1px solid #eee;
+        box-shadow: 3px 3px 3px #fff;
+        padding: 10px;
+        margin: 10px;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+        -webkit-transition: 0.5s ease-out;
+        -moz-transition: 0.5s ease-out;
+        -o-transition: 0.5s ease-out;
+        transition: 0.5s ease-out;
+    }
+
+</style>
+<script>
+     var userData = <?php print_r(json_encode($userData));?>;
+     log(userData.email);
+    // test
+
+    // FACEBOOK SDK https://developers.facebook.com/apps/831655413710934/fb-login/quickstart/
+        //<script>
+          window.fbAsyncInit = function() {
+            FB.init({
+              appId      : "831655413710934",
+              cookie     : true,
+              xfbml      : true,
+              version    : "v3.1"
+            });
+            FB.AppEvents.logPageView();
+          };
+
+          (function(d, s, id){
+             var js, fjs = d.getElementsByTagName(s)[0];
+             if (d.getElementById(id)) {return;}
+             js = d.createElement(s); js.id = id;
+             js.src = "https://connect.facebook.net/en_US/sdk.js";
+             fjs.parentNode.insertBefore(js, fjs);
+           }(document, "script", "facebook-jssdk"));
+       //< /script>
 
 
-            //Taken from the sample code above, here's some of the code that's run during page load to check a person's login status:
-                /*FB.getLoginStatus(function(response) {
-                    statusChangeCallback(response);
-                });*/
+    //Taken from the sample code above, here"s some of the code that"s run during page load to check a person"s login status:
+        /*FB.getLoginStatus(function(response) {
+            statusChangecallback(response);
+        });*/
 
 
-            //The response object that's provided to your callback contains a number of fields:
-                /*{
-                    status: 'connected',
-                    authResponse: {
-                        accessToken: '...',
-                        expiresIn:'...',
-                        signedRequest:'...',
-                        userID:'...'
-                    }
-                }*/
+    //The response object that"s provided to your callback contains a number of fields:
+        /*{
+            status: "connected",
+            authResponse: {
+                accessToken: "...",
+                expiresIn:"...",
+                signedRequest:"...",
+                userID:"..."
+            }
+        }*/
 
 
-                function checkLoginState() {
-                    FB.getLoginStatus(function(response) {
-                      statusChangeCallback(response);
-                    });
-                }
-                
-                function statusChangeCallback(response){
-                    console.log(response);
-                }
-        </script>
-
-
-    <div id='mainContent' class="container" >
-        <div class="row">
-            <div class="col-lg-12">
-                <h2>Add an Asset</h2>
-                <span onclick="backupTree()"><span class='glyphicon glyphicon-chevron-left' aria-hidden='true'></span>BACK</span>
-                <div id="assetTreeNavigatorContainer" onload="renderAssetTree()"></div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-12">
-                <h2>Asset Viewer</h2>
-                <div id="assetViewContainer"></div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-12">
-                <h2>My Assets</h2>
-                <div id="myAssetsContainer"></div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-12">
-                <h2>My Care Plan</h2>
-                <div id="consolidatedCarePlanContainer"></div>
-            </div>
-        </div>
-        
-    </div>
-    <script>
-        
-        var backupCatId = 0;
-        var assetTree = getAssetTree();
-        var assetList = getAssetList();
-        var myAssets = [1,3,6];
-        var completedTasks = [];
-        
-        // ON LOAD FUNCTIONS
-            renderMyData();
-        
-        function renderMyData(){
-            renderAssetTree();
-            renderMyAssets();
-            renderConsolidatedCarePlan();
-            renderCompletedTasks();
+        function checkLoginState() {
+            FB.getLoginStatus(function(response) {
+              statusChangecallback(response);
+            });
         }
-        
-        
-        // TASK HANDLING
-            function doTask(taskId){
-                var confirmation = confirm('Are you sure?');
-                if(confirmation){
-                    completedTasks.push({
-                        "taskId": taskId,
-                        "completedAt": moment()
-                    });
-                    alertBar(taskId + " task done!", 'green');
-                    renderMyData();
+
+        function statusChangecallback(response){
+            console.log(response);
+        }
+</script>
+
+<div id="mainContent" class="container" ></div>
+<script>
+
+    var backupbranchId = 0;
+    var assetTree = getAssetTree();
+    var assetList = getAssetList();
+    var myHome = getMyHome();
+    var completedTasks = [];
+    var pageContent ;
+    var pages = [
+      {
+        page: "myCarePlan",
+        title: "My Care Plan",
+        callback: renderConsolidatedCarePlan,
+      },
+      {
+        page: "myHome",
+        title: "My Assets",
+        callback: renderMyHome,
+      },
+      {
+        page: "addAssets",
+        title: "Add Assets",
+        callback: renderAssetTree,
+      },
+      {
+        page: "assetViewer",
+        title: "View Asset",
+        callback: renderAssetCard,
+      }
+    ];
+
+    // PAGE LOADER
+
+      loadPage();
+      function loadPage(page = null){
+        if(page != null){ // IF PAGE PASSED DIRECTLY INTO APP INPUTS
+          console.log(page);
+          var pageUrl = ('?page='+page);
+          history.pushState('Enhome', "EnHome App", pageUrl) ;
+          showPageContent(page);
+          return true;
+        } else {
+          var page = getQueryVariable("page"); // IF PAGE IN URL
+          if(page == false){page = pages[0].page;} // IF NO PAGE GIVEN IN URL
+          loadPage(page);
+        }
+      }
+
+      // RENDER THE CONTENTS OF EACH PAGE
+      function showPageContent(page){
+        console.log(page);
+        console.log(pages);
+        if(page == false){
+          page = pages[0].page;
+        }
+        var mainContent = document.getElementById('mainContent');
+        mainContent.innerHTML = "";
+
+        for(p = 0; p < pages.length; p++){
+          if(pages[p].page == page){
+            mainContent.innerHTML = '<div class="row" id="'+page+'Container" style="display: block;">\n\
+              <div class="col-lg-12">\n\
+                <h2>'+pages[p].title+'</h2>\n\
+                <div id="'+page+'Content"></div>\n\
+              </div>\n\
+            </div>';
+            pageContent = document.getElementById(page+"Content");
+            pages[p].callback();
+            return true;
+          }
+        }
+      }
+
+    // PAGE CONTENT RENDERING
+
+      function renderAssetTree(branchId = 0){ // RENDER A BRANCH OF THE ASSET TREE IN THE ASSET TREE VIEWER
+        // BUILD BRANCH BREADCRUMB PATH FOR NAVIGATING ASSET TREE
+            var branchPath = "";
+            var parentBranchId = branchId;
+            if(parentBranchId > 0){
+                while(parentBranchId > 0){
+                    var parentBranchDetail = getParentBranch(parentBranchId);
+                    branchPath = "<a href='javascript:void(0)' onclick='renderAssetTree(" + parentBranchDetail.branchId + ")'>" + parentBranchDetail.branchName + '</a> >' + branchPath;
+                    parentBranchId = parentBranchDetail.parentBranchId;
                 }
             }
-            
-            function renderCompletedTasks(){ // SHOW COMPLETED TASKS IN TASK LIST
-                for(ct = 0; ct < completedTasks.length; ct++){
-                    document.getElementById('taskHistory'+completedTasks[ct].taskId).innerHTML += JSON.stringify(completedTasks[ct]);
-                }
-                
+            branchPath = "<a href='javascript:void(0)' onclick='renderAssetTree(0)'>Home</a> >" + branchPath;
+
+        // SET PARENT BRANCH ID FOR ASSET TREE RENDERING
+            if(getParentBranch(branchId)){
+                parentBranchId = getParentBranch(branchId).parentBranchId;
+            } else {
+                parentBranchId = 0;
             }
-        
-        // CARE PLAN HANDLING
-            function renderConsolidatedCarePlan(){
-                var consolidatedCarePlanContainer = document.getElementById('consolidatedCarePlanContainer');
-                var carePlanTasks = compileConsolidatedCarePlan();
-                var carePlanTasksHtml = "";
-                
-                carePlanTasksHtml = "<table>";
-                
-                for (cpt = 0; cpt < carePlanTasks.length; cpt++){
-                    carePlanTasksHtml += "<tr>\n\
-                        <td><button onclick='doTask("+carePlanTasks[cpt].taskId+")'>Task Done</button></td>\n\
-                        <td>" + carePlanTasks[cpt].assetName + "</td>\n\
-                        <td>" + carePlanTasks[cpt].taskName + "</td>\n\
-                        <td>" + carePlanTasks[cpt].frequencyDays + "</td>\n\
-                        <td>" + carePlanTasks[cpt].description + "</td>\n\
-                        <td><div id='taskHistory"+carePlanTasks[cpt].taskId+"'></div></td>\n\
-                        </tr>";
-                    //carePlanTasksHtml += "<tr><td>" + JSON.stringify(carePlanTasks[cpt]) + "</td></tr>";
-                }
-                
-                carePlanTasksHtml += "</table>";
-                
-                consolidatedCarePlanContainer.innerHTML = carePlanTasksHtml;
-                
+
+        // RENDER ASSET TREE
+            pageContent.innerHTML = branchPath + '<br><span onclick="renderAssetTree(' + parentBranchId + ')">\n\
+                </span><div id="assetTreeNavigatorContainer"></div>';
+                // <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>BACK\n\
+
+              var assetTreeNavigatorContainer = document.getElementById("assetTreeNavigatorContainer");
+              var branch = buildAssetTreeBranch(branchId);
+              var listHtml;
+
+              // BUILD HTML STRING FOR BRANCH
+              listHtml = "<ul>";
+              // CYCLE THROUGH EACH SUB-BRANCH ON THE BRANCH
+                  for(b = 0; b < branch.length; b++){
+
+                      if(branch[b].type == "cat"){
+                          listHtml += "<li onclick='renderAssetTree(" + branch[b].branchId + ")'><span class='glyphicon glyphicon-chevron-right' aria-hidden='true'></span>" + branch[b].branchName + "</li>";
+                      } else if(branch[b].type == "asset"){
+                          listHtml += "<li onclick='openAsset(" + branch[b].assetId + ")'><span class='glyphicon glyphicon-plus-sign' aria-hidden='true'></span>" + branch[b].assetName + "</li>";
+                      }
+                  }
+              listHtml += "</ul>";
+              assetTreeNavigatorContainer.innerHTML = listHtml;
+
+          return true;
+      }
+
+
+      function getMyHome(data = null){
+          if(data){
+              myHome = data.data;
+          } else {
+              get("api/?token="+userToken+"&action=getMyHome", getMyHome);
+          }
+      }
+
+      function renderMyHome(data = null){ // RENDER THE LIST OF MY ASSETS IN THE MY ASSET LIST
+          if(data){
+              console.log('myhome loaded');
+              myHome = data.data;
+          } else {
+              console.log('no myhome data');
+              get("api/?token="+userToken+"&action=getMyHome", renderMyHome);
+              return false;
             }
-            
-            function compileConsolidatedCarePlan(){
-                var consolidatedCarePlan = [];
-                
-                for (ma = 0; ma < myAssets.length; ma++){
-                    log("Care Plan " + myAssets[ma]);
-                    var assetCarePlan = lookupCarePlan(myAssets[ma]);
-                    if(assetCarePlan.tasks.length>0){
-                        for (mat = 0; mat < assetCarePlan.tasks.length; mat++){
-                            consolidatedCarePlan.push({
-                                "assetId": myAssets[ma],
-                                "assetName": lookupAsset(myAssets[ma]).assetName,
-                                "taskId": assetCarePlan.tasks[mat].taskId,
-                                "taskName": assetCarePlan.tasks[mat].taskName,
-                                "frequencyDays": assetCarePlan.tasks[mat].frequencyDays,
-                                "description": assetCarePlan.tasks[mat].description,
-                                "importance": assetCarePlan.tasks[mat].importance,
-                            });
-                        }
-                    }
-                }
-                
-                consolidatedCarePlan.sort(function(a, b) {
-                    return (a.frequencyDays) - (b.frequencyDays);
+
+          var myAsset;
+          console.log(myHome);
+          var pageContentHtml = "<div class='container'>";
+          // CYCLE THROUGH MY ASSET LIST
+          for (m = 0; m < myHome.length; m++){
+              console.log(myHome[m].assetId);
+              var assetCard = renderAssetCard(myHome[m].assetId);
+              //alert(assetCard);
+              var newAssetCard = "";
+              newAssetCard += "<div class='col-sm-4'>";
+                  newAssetCard += assetCard;
+                  newAssetCard += "<button onclick='deleteAsset("+myHome[m].userAssetId+")'>Delete</button>";
+              newAssetCard += "</div>";
+
+              pageContent.innerHTML += newAssetCard;
+              document.getElementById('userAssetNameContainer').innerHTML = "<h1>" + myHome[m].userAssetName+ "</h1>";
+              document.getElementById('userAssetNameContainer').id = myHome[m].userAssetId;
+              //pageContentHtml += assetCard;
+              //pageContentHtml += "<button onclick='deleteAsset("+myHome[m].userAssetId+")'>Delete</button>";
+              //pageContentHtml += "<tr><td>" + (myHome[m].assetName) + "(" + (myHome[m].assetId) + ")</td>\n\
+              //<td>"+(myHome[m].userAssetName)+"</td>\n\
+              //<td>"+(myHome[m].dateAdded)+"</td>\n\
+              //<td><button onclick='deleteAsset("+myHome[m].userAssetId+")'>Delete</button></td></tr>";
+          }
+          //pageContentHtml += "</table>";
+
+          //pageContent.innerHTML = pageContentHtml;
+      }
+
+      function renderConsolidatedCarePlan(data = null){
+          if(data){
+              log(data);
+              var consolidatedCarePlanContainer = pageContent;
+              var carePlanTasks = data.data;
+              var carePlanTasksHtml = "";
+              log("CARE PLAN");
+              log(carePlanTasks);
+              carePlanTasksHtml = "<table><tr>\n\
+                <th></th>\n\
+                <th>Asset</th>\n\
+                <th>Asset Name</th>\n\
+                <th>Task</th>\n\
+                <th>Frequency Days</th>\n\
+                <th>Last Completed</th>\n\
+                <th>Next Date</th>\n\
+                <th>Description</th>\n\
+              </tr>";
+
+            //alert(carePlanTasks);
+              for (cpt = 0; cpt < carePlanTasks.length; cpt++){
+                  carePlanTasksHtml += "<tr>\n\
+                      <td><button onclick='completeTask("+carePlanTasks[cpt].taskId+","+carePlanTasks[cpt].assetId+")')>Task Done</button></td>\n\
+                      <td>" + carePlanTasks[cpt].assetName + "</td>\n\
+                      <td>" + carePlanTasks[cpt].userAssetName + "</td>\n\
+                      <td>" + carePlanTasks[cpt].taskName + "</td>\n\
+                      <td>" + carePlanTasks[cpt].frequencyDays + "</td>\n\
+                      <td>" + carePlanTasks[cpt].lastCompletedAt + "</td>\n\
+                      <td>" + carePlanTasks[cpt].nextDueDate + "</td>\n\
+                      <td>" + carePlanTasks[cpt].description + "</td>\n\
+                      </tr>";
+                  //carePlanTasksHtml += "<tr><td>" + JSON.stringify(carePlanTasks[cpt]) + "</td></tr>";
+              }
+              carePlanTasksHtml += "</table>";
+              consolidatedCarePlanContainer.innerHTML = carePlanTasksHtml;
+          } else {
+              log("api/?token="+userToken+"&action=getCarePlan");
+              get("api/?token="+userToken+"&action=getCarePlan", renderConsolidatedCarePlan);
+          }
+      }
+
+    // TASK HANDLING
+        function doTask(taskId){
+            var confirmation = confirm("Are you sure?");
+            if(confirmation){
+                completedTasks.push({
+                    "taskId": taskId,
+                    "completedAt": moment()
                 });
-                
-                return consolidatedCarePlan;
-            }
-        
-            function renderAssetCarePlan(assetId){ // WRITE HTML STRING FOR A SINGLE ASSET CARE PLAN
-                var asset = lookupAsset(assetId);
-                var carePlan = lookupCarePlan(assetId);
-                var carePlanHtml = "<table>";
-
-                for(cp = 0; cp < carePlan.length; cp++){
-                    carePlanHtml += "<tr><td>" + carePlan[cp].taskName + "</td><td>"+ carePlan[cp].frequency + "</td></tr>"
-                }
-
-                carePlanHtml += "</table>";
-                return carePlanHtml;
-            }
-            
-            function lookupCarePlan(assetId){ // RETURN COMPLETE CARE PLAN AS JSON
-                var carePlans = [
-                    {"assetId": "1", "tasks":[
-                        {"taskId": 1, "type": "task type 1", "taskName": "Task Name 1", "frequencyDays": 33, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 2, "type": "task type 2", "taskName": "Task Name 2", "frequencyDays": 65, "importance": "Low", "description": "Do these 2 things..."},
-                        {"taskId": 3, "type": "task type 3", "taskName": "Task Name 3", "frequencyDays": 270, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 4, "type": "task type 4", "taskName": "Task Name 4", "frequencyDays": 170, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 5, "type": "task type 5", "taskName": "Task Name 5", "frequencyDays": 43, "importance": "High", "description": "Do these 7 things..."},
-                    ]},
-                    {"assetId": "2", "tasks":[
-                        {"taskId": 6, "type": "task type 1", "taskName": "Task Name 1", "frequencyDays": 90, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 7, "type": "task type 2", "taskName": "Task Name 2", "frequencyDays": 7, "importance": "Low", "description": "Do these 2 things..."},
-                        {"taskId": 8, "type": "task type 3", "taskName": "Task Name 3", "frequencyDays": 1, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 9, "type": "task type 4", "taskName": "Task Name 4", "frequencyDays": 180, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 10, "type": "task type 5", "taskName": "Task Name 5", "frequencyDays": 30, "importance": "High", "description": "Do these 7 things..."},
-                    ]},
-                    {"assetId": "3", "tasks":[
-                        {"taskId": 11, "type": "task type 1", "taskName": "Task Name 1", "frequencyDays": 84, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 12, "type": "task type 2", "taskName": "Task Name 2", "frequencyDays": 8, "importance": "Low", "description": "Do these 2 things..."},
-                        {"taskId": 13, "type": "task type 3", "taskName": "Task Name 3", "frequencyDays": 2, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 14, "type": "task type 4", "taskName": "Task Name 4", "frequencyDays": 180, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 15, "type": "task type 5", "taskName": "Task Name 5", "frequencyDays": 28, "importance": "High", "description": "Do these 7 things..."},
-                    ]},
-                    {"assetId": "4", "tasks":[
-                        {"taskId": 16, "type": "task type 1", "taskName": "Task Name 1", "frequencyDays": 92, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 17, "type": "task type 2", "taskName": "Task Name 2", "frequencyDays": 7, "importance": "Low", "description": "Do these 2 things..."},
-                        {"taskId": 18, "type": "task type 3", "taskName": "Task Name 3", "frequencyDays": 1, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 19, "type": "task type 4", "taskName": "Task Name 4", "frequencyDays": 180, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 20, "type": "task type 5", "taskName": "Task Name 5", "frequencyDays": 27, "importance": "High", "description": "Do these 7 things..."},
-                    ]},
-                    {"assetId": "5", "tasks":[
-                        {"taskId": 21, "type": "task type 1", "taskName": "Task Name 1", "frequencyDays": 91, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 22, "type": "task type 2", "taskName": "Task Name 2", "frequencyDays": 7, "importance": "Low", "description": "Do these 2 things..."},
-                        {"taskId": 23, "type": "task type 3", "taskName": "Task Name 3", "frequencyDays": 1, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 24, "type": "task type 4", "taskName": "Task Name 4", "frequencyDays": 180, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 25, "type": "task type 5", "taskName": "Task Name 5", "frequencyDays": 30, "importance": "High", "description": "Do these 7 things..."},
-                    ]},
-                    {"assetId": "6", "tasks":[
-                        {"taskId": 26, "type": "task type 5", "taskName": "Task Name 5", "frequencyDays": 35, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 27, "type": "task type 1", "taskName": "Task Name 1", "frequencyDays": 71, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 28, "type": "task type 2", "taskName": "Task Name 2", "frequencyDays": 7, "importance": "Low", "description": "Do these 2 things..."},
-                        {"taskId": 29, "type": "task type 3", "taskName": "Task Name 3", "frequencyDays": 1, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 30, "type": "task type 4", "taskName": "Task Name 4", "frequencyDays": 180, "importance": "High", "description": "Do these 7 things..."},
-                    ]},
-                    {"assetId": "7", "tasks":[
-                        {"taskId": 31, "type": "task type 4", "taskName": "Task Name 4", "frequencyDays": 177, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 32, "type": "task type 1", "taskName": "Task Name 1", "frequencyDays": 81, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 33, "type": "task type 2", "taskName": "Task Name 2", "frequencyDays": 6, "importance": "Low", "description": "Do these 2 things..."},
-                        {"taskId": 34, "type": "task type 3", "taskName": "Task Name 3", "frequencyDays": 4, "importance": "High", "description": "Do these 7 things..."},
-                        {"taskId": 35, "type": "task type 5", "taskName": "Task Name 5", "frequencyDays": 39, "importance": "High", "description": "Do these 7 things..."},
-                    ]}
-                ];
-
-                for (cp = 0; cp < carePlans.length; cp++){
-                    if(carePlans[cp].assetId == assetId){
-                        carePlans[cp].tasks.sort(function(a, b) {
-                            return (a.frequencyDays) - (b.frequencyDays);
-                        });
-                        log('care plan found');
-                        return carePlans[cp];
-                    }
-                }
-
-                return {"assetId": null, "tasks":[
-                        {"taskId": null, "type": null, "taskName": null, "frequencyDays": null, "importance": null, "description": null},
-                    ]};
-            }
-
-        // COMPLETED TASKS
-            function getCompletedTasks(userId){
-
-            }
-
-
-        // ASSET HANDLING
-            function renderMyAssets(){ // RENDER THE LIST OF MY ASSETS IN THE MY ASSET LIST
-                var myAssetsContainer = document.getElementById('myAssetsContainer');
-                var myAsset;
-
-                myAssetsContainer.innerHTML = "";
-
-                // CYCLE THROUGH MY ASSET LIST
-                for (m = 0; m < myAssets.length; m++){
-                    myAssetsContainer.innerHTML += renderAssetCard(myAssets[m])
-                }
-            }
-
-            function renderAssetCard(assetId){ // RETURN THE HTML FOR A CARD DISPLAYING THE ASSET
-                var myAsset = lookupAsset(myAssets[m]);
-                return "<h3>" + myAsset.assetName + "</h3>";
-            }
-
-            function lookupAsset(assetId){ // LOOKUP AN ASSET FROM THE ASSET LIST
-                for(al = 0; al < assetList.length; al++){
-                    if(assetList[al].assetId == assetId){
-                        return assetList[al];
-                    }
-                }
-            }
-
-            function addAsset(assetId){ // ADD AN ASSET TO MY LIST
-                var found = false;
-
-                for (f = 0; f < myAssets.length; f++){
-                    if (myAssets[f] == assetId){found = true;}
-                }
-
-                if(found == false){
-                    myAssets.push(assetId);
-                    renderMyAssets();
-                } else {
-                    alertBar('Asset already on your list!', 'blue')
-                }
+                alertBar(taskId + " task done!", "green");
                 renderMyData();
             }
+        }
 
-            function openAsset(assetId){ // RENDER AN ASSET IN THE ASSET VIEWER
-                var assetViewContainer = document.getElementById('assetViewContainer');
+        function renderCompletedTasks(){ // SHOW COMPLETED TASKS IN TASK LIST
+          showPageContent('carePlanContainer');
+            for(ct = 0; ct < completedTasks.length; ct++){
+                document.getElementById("taskHistory"+completedTasks[ct].taskId).innerHTML += JSON.stringify(completedTasks[ct]);
+            }
+        }
 
-                // CYCLE THROUGH ASSET LIST TO FIND THE ASSET
-                for(a = 0; a < assetList.length; a++){
-                    if(assetList[a].assetId == assetId){
-                        var asset = assetList[a];
-                        assetViewContainer.innerHTML = "<h3>" + asset.assetName + "</h3>" + renderAssetCarePlan(assetId) +"<button onclick='addAsset("+asset.assetId+")'>Add to my list</button>";
+
+    // CARE PLAN HANDLING
+
+
+        function compileConsolidatedCarePlan(){
+            var consolidatedCarePlan = [];
+
+            for (ma = 0; ma < myHome.length; ma++){
+                log("Care Plan " + myHome[ma].userAssetId);
+                var assetCarePlan = lookupCarePlan(myHome[ma].assetId);
+                log("ASSET CARE PLAN");
+                log(assetCarePlan);
+                if(assetCarePlan.tasks.length>0){
+                    for (mat = 0; mat < assetCarePlan.tasks.length; mat++){
+                        log("ASSET CARE PLAN");
+                        log(assetCarePlan);
+                        consolidatedCarePlan.push({
+                            "assetId": myHome[ma].assetId,
+                            "userAssetId": myHome[ma].userAssetId,
+                            "assetName": lookupAsset(myHome[ma].assetId).assetName,
+                            "taskId": assetCarePlan.tasks[mat].taskId,
+                            "taskName": assetCarePlan.tasks[mat].taskName,
+                            "frequencyDays": assetCarePlan.tasks[mat].frequencyDays,
+                            "description": assetCarePlan.tasks[mat].description,
+                            "importance": assetCarePlan.tasks[mat].importance,
+                            "lastCompletedAt": assetCarePlan.tasks[mat].lastCompletedAt,
+                            "nextDueDate": assetCarePlan.tasks[mat].nextDueDate,
+                        });
                     }
                 }
-
-
             }
 
+            consolidatedCarePlan.sort(function(a, b) {
+                return (a.frequencyDays) - (b.frequencyDays);
+            });
+            console.log(consolidatedCarePlan);
+            return consolidatedCarePlan;
+        }
 
-            function getAssetList(){ // RETURN COMPLETE ASSET LIST AS JSON
-                return [
-                    {"parentCatId" : 21, "assetId": "1", "assetName": "Asset 1", "assetDetail" : {"description": "Asset description goes here..."}},
-                    {"parentCatId" : 21, "assetId": "2", "assetName": "Asset 2", "assetDetail" : {"description": "Asset description goes here..."}},
-                    {"parentCatId" : 21, "assetId": "3", "assetName": "Asset 3", "assetDetail" : {"description": "Asset description goes here..."}},
-                    {"parentCatId" : 11, "assetId": "4", "assetName": "Asset 4", "assetDetail" : {"description": "Asset description goes here..."}},
-                    {"parentCatId" : 22, "assetId": "5", "assetName": "Asset 5", "assetDetail" : {"description": "Asset description goes here..."}},
-                    {"parentCatId" : 23, "assetId": "6", "assetName": "Asset 6", "assetDetail" : {"description": "Asset description goes here..."}},
-                    {"parentCatId" : 24, "assetId": "7", "assetName": "Asset 7", "assetDetail" : {"description": "Asset description goes here..."}},
+        function renderAssetCarePlan(assetId){ // WRITE HTML STRING FOR A SINGLE ASSET CARE PLAN
+          //showPageContent('carePlanContainer');
+            var asset = lookupAsset(assetId);
+            console.log('Render Asset Care Plan');
+            console.log(assetId);
+            var carePlan = lookupCarePlan(assetId);
+            console.log(carePlan);
+            var carePlanHtml = "<table>\n\
+              <tr><th>Task Name</th><th>Description</th><th>Importance</th><th>Frequency (Days)</th><td>Task ID</th></tr>";
 
-                ]
+            for(cp = 0; cp < carePlan.tasks.length; cp++){
+                carePlanHtml += "<tr><td>" + carePlan.tasks[cp].taskName + "</td> \n\
+                    <td>"+ carePlan.tasks[cp].description + "</td>\n\
+                    <td>"+ carePlan.tasks[cp].importance + "</td> \n\
+                    <td>"+ carePlan.tasks[cp].frequencyDays + "</td> \n\
+                    <td>"+ carePlan.tasks[cp].taskId + ")'</td> \n\
+                </tr>"
             }
-        
 
-        
-        // ASSET TREE NAVIGATION
-            function renderAssetTree(catId = 0){ // RENDER A BRANCH OF THE ASSET TREE IN THE ASSET TREE VIEWER
-                log(catId);
-                var assetTreeNavigatorContainer = document.getElementById('assetTreeNavigatorContainer');
-                var branch = buildAssetTreeBranch(catId);
-                var listHtml;
+            carePlanHtml += "</table>";
+            return carePlanHtml;
+        }
 
-                // BUILD HTML STRING FOR BRANCH
-                listHtml = "<ul>";
-                for(b = 0; b < branch.length; b++){
-                    if(branch[b].type == "cat"){
-                        listHtml += "<li onclick='renderAssetTree(" + branch[b].catId + "), setBackupCatId("+branch[b].parentCatId+")'><span class='glyphicon glyphicon-chevron-right' aria-hidden='true'></span>" + branch[b].catName + "</li>";
-                    } else if(branch[b].type == "asset"){
-                        listHtml += "<li onclick='openAsset(" + branch[b].assetId + ")'><span class='glyphicon glyphicon-plus-sign' aria-hidden='true'></span>" + branch[b].assetName + "</li>";
-                    }
+
+    // COMPLETED TASKS
+        function getCompletedTasks(userId){
+
+        }
+
+    // ASSET HANDLING
+        //document.body.innerHTML += renderAssetCard(1);
+        function renderAssetCard(assetId){ // RETURN THE HTML FOR A CARD DISPLAYING THE ASSET
+            var myAsset = lookupAsset(assetId);
+            console.log("Render Asset Card");
+            console.log(myAsset);
+
+            var assetCardHtml = "<div class='assetCard'>";
+            assetCardHtml += "<span id='userAssetNameContainer'></span>";
+            assetCardHtml += "<h2>" + myAsset.assetName + "</h2>";
+            assetCardHtml += "<h4>" + myAsset.assetDetail.description + "</h4>";
+            var otherAssetDetails  = myAsset.assetDetail.otherDetails;
+            for (i = 0; i < otherAssetDetails.length; i++){
+                detail = otherAssetDetails[i];
+                if(detail.type == 'img'){
+                    assetCardHtml += "<img src='" + detail.value + "'>'";
                 }
-
-                listHtml += "</ul>";
-                assetTreeNavigatorContainer.innerHTML = listHtml;
-
-                return true;
             }
+            //assetCardHtml += JSON.stringify(myAsset);
+            /*for (var key in otherAssetDetails) {
+              if (otherAssetDetails.hasOwnProperty(key)) {
+                console.log(key + ": " + otherAssetDetails[key]);
+              }
+            }*/
+            assetCardHtml += "</div>";
+            return assetCardHtml;
+        }
 
-            function buildAssetTreeBranch(catId, subBranches=false){ // BUILD LIST OF CATEGORIES IN A CATEGORY NAVIGATION BRANCH
-                var branch = [];
-               //console.log(assetTree);
-                for(var i = 0; i < assetTree.length; i++){
-                    if(assetTree[i].parentCatId == catId){
-                        log(assetTree[i].catName);
-                        var newBranch = assetTree[i];
-                        if(subBranches){
-                            newBranch.branches = buildAssetTreeBranch(newBranch.catId, subBranches);
-                        }
-                        newBranch.type = "cat";
-                        branch.push(newBranch);
-                    }
+        //document.body.innerHTML += renderAssetCard(1);
+        function renderAssetPage(assetId){ // RETURN THE HTML FOR A CARD DISPLAYING THE ASSET
+            var myAsset = lookupAsset(assetId);
+            console.log("Render Asset Card");
+            console.log(myAsset);
+
+            var assetCardHtml = "<div class='assetPage'>";
+            assetCardHtml += "<span id='userAssetNameContainer'></span>";
+            assetCardHtml += "<h2>" + myAsset.assetName + "</h2>";
+            assetCardHtml += "<h4>" + myAsset.assetDetail.description + "</h4>";
+            var otherAssetDetails  = myAsset.assetDetail.otherDetails;
+            for (i = 0; i < otherAssetDetails.length; i++){
+                detail = otherAssetDetails[i];
+                if(detail.type == 'img'){
+                    assetCardHtml += "<img src='" + detail.value + "'>'";
                 }
+            }
+            assetCardHtml += "<span>" + JSON.stringify(myAsset) + "</span>";
+            assetCardHtml += "<span id='taskListContainer' ></span>";
+            assetCardHtml += "</div>";
+            //alert(assetCardHtml);
+            return assetCardHtml;
+        }
+        function renderAssetTasks(data = null){
+            if(whatIsIt(data) == "Object"){
+                var tasks = data.data;
 
-                for(var i = 0; i < assetList.length; i++){
-                    if(assetList[i].parentCatId == catId){
-                        log(assetList[i].assetName);
-                        var newBranch = assetList[i];
-                        newBranch.type = "asset";
-                        branch.push(newBranch);
-                    }
+                document.getElementById('taskListContainer').innerHTML = "<h3>Tasks</h3>";
+                for(i = 0; i < tasks.length; i++){
+                    document.getElementById('taskListContainer').innerHTML += "<li>#"+tasks[i].taskId + " " + tasks[i].taskName;
+                    document.getElementById('taskListContainer').innerHTML += " Importance: "+tasks[i].importance;
+                    document.getElementById('taskListContainer').innerHTML += " Description: "+tasks[i].description;
+                    document.getElementById('taskListContainer').innerHTML += " Frequency Days: "+tasks[i].frequencyDays;
                 }
+                document.getElementById('taskListContainer').innerHTML += "<pre>" + JSON.stringify(tasks) + "</pre>";
+            } else {
+                data = {'assetId': data};
+                get("api/?token="+userToken+"&action=getAssetTasks&data=" + JSON.stringify(data), renderAssetTasks);
+            }
+        }
 
-                return branch;
+
+        function whatIsIt(object) {
+            if (object === null) {
+                return "null";
+            }
+            else if (object === undefined) {
+                return "undefined";
+            }
+            else if (object.constructor === "test".constructor) {
+                return "String";
+            }
+            else if (object.constructor === [].constructor) {
+                return "Array";
+            }
+            else if (object.constructor === {}.constructor) {
+                return "Object";
+            }
+            else {
+                return "don't know";
+            }
+        }
+
+        function lookupAsset(assetId){ // LOOKUP AN ASSET FROM THE ASSET LIST
+            for(al = 0; al < assetList.length; al++){
+                if(assetList[al].assetId == assetId){
+                    assetList[al].assetDetail = JSON.parse(assetList[al].assetDetail);
+                    return assetList[al];
+                }
+            }
+        }
+
+        function addAsset(assetId){ // ADD AN ASSET TO MY LIST
+            var found = false;
+
+            for (f = 0; f < myHome.length; f++){
+                if (myHome[f] == assetId){found = true;}
             }
 
-            function backupTree(){  // BACKUP IN THE ASSSET TREE NAVIGATOR
-                renderAssetTree(backupCatId);
+            if(found == false){
+                var newAssetName = document.getElementById('newAssetName').value;
+                var newAssetInstallationDate = document.getElementById('newAssetInstallationDate').value;
+                var data = {'assetId': assetId, 'newAssetName': newAssetName, 'newAssetInstallationDate': newAssetInstallationDate };
+                get("api/?token="+userToken+"&action=addAsset&data=" + JSON.stringify(data), successFunction);
+
+            } else {
+                alertBar("Asset already on your list!", "blue")
+                loadPage('myHome');
             }
-            
-            function setBackupCatId(catId){ // SET BACK UP ID VARIABLE FOR NAVIGATION
-                backupCatId = catId;
+            //renderMyData();
+        }
+
+        function deleteAsset(assignedAssetId){
+            var data = {'assignedAssetId': assignedAssetId};
+            get("api/?token="+userToken+"&action=deleteAsset&data=" + JSON.stringify(data), successFunction);
+
+        }
+
+        function completeTask(completedTaskId, userAssetId){
+            var data = {'completedTaskId': completedTaskId, 'userAssetId': userAssetId};
+            get("api/?token="+userToken+"&action=completeTask&data=" + JSON.stringify(data), successFunction);
+        }
+
+        function modifyUrl(params, page = null){
+            if(!page){
+                var page = getQueryVariable('page');
             }
-            
-            function getAssetTree(){ // RETURN COMPLETE ASSET TREE AS JSON
-                return [
-                    {"catId": 1, "parentCatId" : 0, "catName": "Kitchen"},
-                    {"catId": 2, "parentCatId" : 0, "catName": "Bathroom"},
-                    {"catId": 3, "parentCatId" : 0, "catName": "Garage"}, 
-                    {"catId": 4, "parentCatId" : 0, "catName": "Yard"}, 
-                    {"catId": 5, "parentCatId" : 0, "catName": "HVAC"}, 
-                    {"catId": 6, "parentCatId" : 0, "catName": "Plumbing"}, 
-                    {"catId": 7, "parentCatId" : 0, "catName": "Electrical"}, 
-                    {"catId": 11, "parentCatId" : 1, "catName": "Refrigerator & Freezer"},
-                    {"catId": 12, "parentCatId" : 1, "catName": "Cooktop & Oven"},
-                    {"catId": 13, "parentCatId" : 1, "catName": "Sink"}, 
-                    {"catId": 14, "parentCatId" : 1, "catName": "Dishwasher"}, 
-                    {"catId": 15, "parentCatId" : 1, "catName": "Exhaust"}, 
-                    {"catId": 21, "parentCatId" : 11, "catName": "Level 3 Test Category 1"},
-                    {"catId": 22, "parentCatId" : 11, "catName": "Level 3 Test Category 2"},
-                    {"catId": 23, "parentCatId" : 11, "catName": "Level 3 Test Category 3"}, 
-                ];
+            var pageUrl = ('?page='+page);
+            for(p = 0; p < params.length; p++){
+                pageUrl += "&" + params[p].title + "=" + params[p].value;
             }
-        
-        
-    </script>
+            history.pushState('Enhome', "EnHome App", pageUrl) ;
+        }
+
+        function openAsset(assetId){ // RENDER AN ASSET IN THE ASSET VIEWER
+            // UPDATE URL
+                modifyUrl([{'title': 'assetId', 'value': assetId}]);
+
+            pageContent.innerHTML = renderAssetPage(assetId);
+            renderAssetTasks(assetId);
+            pageContent.innerHTML += "<label for='newAssetName'>Asset Name: </label><input type='text' id='newAssetName' name='newAssetName'>";
+            pageContent.innerHTML += "<label for='newAssetInstallationDate'>Installation Date: </label><input type='date' id='newAssetInstallationDate' name='newAssetInstallationDate'>";
+            pageContent.innerHTML += "<button onclick='addAsset("+assetId+")'>Add to my list</button>";
+        }
+
+        function getAssetList(){ // RETURN COMPLETE ASSET LIST AS JSON
+            return <?php  getAssetList();  ?>;
+        }
+
+
+
+        function successFunction(data){
+            alertBar(data.response.message, data.response.color);
+            console.log('LOADING');
+            console.log(getQueryVariable('page'));
+            loadPage(getQueryVariable('page'));
+        }
+
+    // ASSET TREE NAVIGATION
+
+        function buildAssetTreeBranch(branchId, subBranches=false){ // BUILD LIST OF CATEGORIES IN A CATEGORY NAVIGATION BRANCH
+            var branch = [];
+           //console.log(assetTree);
+            for(var i = 0; i < assetTree.length; i++){
+                if(assetTree[i].parentBranchId == branchId){
+                    log(assetTree[i].branchName);
+                    var newBranch = assetTree[i];
+                    if(subBranches){
+                        newBranch.branches = buildAssetTreeBranch(newBranch.branchId, subBranches);
+                    }
+                    newBranch.type = "cat";
+                    branch.push(newBranch);
+                }
+            }
+
+            for(var i = 0; i < assetList.length; i++){
+                if(assetList[i].parentBranchId == branchId){
+                    log(assetList[i].assetName);
+                    var newBranch = assetList[i];
+                    newBranch.type = "asset";
+                    branch.push(newBranch);
+                }
+            }
+            return branch;
+        }
+        function getParentBranch(branchId){
+            console.log(assetTree);
+             for(var i = 0; i < assetTree.length; i++){
+                 if(assetTree[i].branchId == branchId){
+                     return assetTree[i];
+                 }
+             }
+        }
+
+        function backupTree(){  // BACKUP IN THE ASSSET TREE NAVIGATOR
+            console.log(backupbranchId);
+            renderAssetTree(backupbranchId);
+            //setBackupbranchId()
+        }
+
+        function setBackupbranchId(branchId){ // SET BACK UP ID VARIABLE FOR NAVIGATION
+            backupbranchId = branchId;
+        }
+
+
+
+  function getAssetTree(){ // RETURN COMPLETE ASSET TREE AS JSON
+      return <?php getAssetTree(); ?>;
+  }
+
+  function lookupCarePlan(assetId){ // RETURN COMPLETE CARE PLAN AS JSON
+      var carePlans = <?php print_r(json_encode(getTaskLibrary())); ?>;
+      for (cp = 0; cp < carePlans.length; cp++){
+          if(carePlans[cp].assetId == assetId){
+              carePlans[cp].tasks.sort(function(a, b) {
+                  return (a.frequencyDays) - (b.frequencyDays);
+              });
+              log("care plan found");
+            return carePlans[cp];
+          }
+      }
+
+      return {"assetId": null, "tasks":[
+              {"taskId": null, "type": null, "taskName": null, "frequencyDays": null, "importance": null, "description": null},
+          ]};
+
+  }
+
+</script>
+
 </body>
 </html>
+
+<?php
+
+  function getUserAssets(){
+    $userData = $_SESSION['userdata'];
+    $list = array();
+    $assets = queryStmtToArray("SELECT
+            user_assets.id as userAssetId,
+            user_assets.asset_id as assetId,
+            user_assets.user_asset_name as userAssetName,
+            assets.name as assetName,
+            user_assets.added_at as dateAdded
+        FROM enhome.user_assets
+        LEFT JOIN enhome.assets ON assets.id = user_assets.asset_id
+        WHERE user_id =".$userData->id." AND user_assets.deleted_at IS NULL;");
+    foreach($assets as $A){
+      $list[] = $A;
+    }
+    print_r(json_encode($list));
+  }
+
+  function getAssetTree(){
+    $queryStmt = "SELECT branches.id as branchId, parent_id as parentBranchId, branches.name as branchName FROM enhome.branches WHERE deleted_at IS NULL";
+    PrintQueryStmtAsJson($queryStmt);
+  }
+
+  function getAssetList(){
+    $queryStmt = "SELECT branch_id as parentBranchId, id as assetId, name as assetName, detail as assetDetail from enhome.assets WHERE deleted_at IS NULL;";
+    PrintQueryStmtAsJson($queryStmt);
+  }
+
+  function getTaskLibrary(){
+    $userId = $_SESSION['userdata']->id;
+    $tasks = array();
+    $queryStmt = "SELECT
+      taskId, assetId, taskName, type, importance, description, frequencyDays, lastCompletedAt,
+      	DATE_ADD(lastCompletedAt, interval frequencyDays day) as nextDueDate
+      FROM (
+        SELECT
+        	tasks.id as taskId, tasks.asset_id as assetId,  tasks.name as taskName, task_types.name as type,
+        	importance, description, frequency_days as frequencyDays ,
+            max(task_completion.completed_at) as lastCompletedAt
+        FROM enhome.tasks
+        LEFT JOIN enhome.task_types ON tasks.type_id = task_types.id
+        LEFT JOIN enhome.task_completion ON task_completion.task_id = tasks.id AND task_completion.user_id = $userId
+        WHERE tasks.asset_id IN (SELECT asset_id FROM enhome.user_assets WHERE user_id = $userId AND tasks.deleted_at IS NULL)
+        GROUP BY tasks.id
+      ) as t1;";
+      //echo $queryStmt;
+    $taskData = queryStmtToArray($queryStmt);
+    foreach ($taskData as $T){ // CYCLE THROUGH ALL TASKS
+      $found = false;
+      for($i = 0; $i < count($tasks); $i++){ // CYCLE THROUGH ALL FORMATTED ASSET OBJECTS
+        if($tasks[$i]['assetId'] == $T['assetId']){
+          $found = true; // OBJECT FOR ASSET IS FOUND
+          $tasks[$i]['tasks'][] = array( // INSERT NEW TASK INTO PRE-EXISTING ASSET
+            'taskId' => $T['taskId'],
+            'type' => $T['type'],
+            'taskName' => $T['taskName'],
+            'frequencyDays' => $T['frequencyDays'],
+            'lastCompletedAt' => $T['lastCompletedAt'],
+            'nextDueDate' => $T['nextDueDate'],
+            'importance' => $T['importance'],
+            'description' => $T['description'],
+          );
+        }
+      }
+
+      // IF ASSET OBJECT NOT FOUND
+      $tasks[] = array(
+        'assetId' => $T['assetId'],
+        'tasks' => array()
+      );
+    }
+    return $tasks;
+  }
+
+ ?>

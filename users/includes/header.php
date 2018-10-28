@@ -149,7 +149,7 @@ function tokenEncoder($username){
 	<title><?= (($pageTitle != '') ? $pageTitle : ''); ?> <?=$settings->site_name?></title>
 
 	<!-- Bootstrap Core CSS -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<!--link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"-->
 
 	<!-- AKA Primary CSS -->
 	<link href="<?=$us_url_root?><?=str_replace('../','',$settings->us_css1);?>" rel="stylesheet">
@@ -209,7 +209,7 @@ if($settings->session_manager==1) storeUser(); ?>
 	?>
 
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.1/bootstrap-editable/css/bootstrap-editable.css" integrity="sha256-YsJ7Lkc/YB0+ssBKz0c0GTx0RI+BnXcKH5SpnttERaY=" crossorigin="anonymous" />
-	
+
         <style>
 	.editableform-loading {
 	    background: url('https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.1/bootstrap-editable/img/loading.gif') center center no-repeat !important;
@@ -218,16 +218,16 @@ if($settings->session_manager==1) storeUser(); ?>
 	   background: url('https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.1/bootstrap-editable/img/clear.png') center center no-repeat !important;
 	}
 	</style>
-       <?php 
-        
-            $db = DB::getInstance();
-    if (!securePage($_SERVER['PHP_SELF'])){die();}
-    
-    if($user->isLoggedIn()){
-       $userData = $user->data();
-       $uid = $userData->id;   
-       $userDataJson = json_encode($userData);
-       echo "<script>var userToken = ".encryptToken($userData->email).";"
-               . "var userData = ".$userDataJson.";</script>";
-    } 
+       <?php
+
+          $db = DB::getInstance();
+					if (!securePage($_SERVER['PHP_SELF'])){die();}
+
+					if($user->isLoggedIn()){
+						 //include_once('../../functions.php');
+					   $userData = $user->data();
+					   $uid = $userData->id;
+					   $userDataJson = json_encode($userData);
+						 $_SESSION['userdata'] = $userData;
+					}
 ?>

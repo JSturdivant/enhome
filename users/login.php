@@ -24,7 +24,7 @@ if(isset($_SESSION)){session_destroy();}
 ?>
 <?php require_once '../users/init.php';?>
 <?php require_once $abs_us_root.$us_url_root.'users/includes/header.php'; ?>
-<?php //require_once $abs_us_root.$us_url_root.'users/includes/navigation.php';
+<?php require_once $abs_us_root.$us_url_root.'users/includes/navigation.php';
 if($settings->twofa == 1){
   $google2fa = new PragmaRX\Google2FA\Google2FA();
 }

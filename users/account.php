@@ -53,6 +53,7 @@ $raw = date_parse($user->data()->join_date);
 $signupdate = $raw['month']."/".$raw['day']."/".$raw['year'];
 $userdetails = fetchUserDetails(NULL, NULL, $get_info_id); //Fetch user details
 
+
  ?>
 
 <div id="page-wrapper">
