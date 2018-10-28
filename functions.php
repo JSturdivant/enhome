@@ -173,10 +173,13 @@
     // CONNECT TO MySQL DB SERVER
     function db_connect () {
         //$dbCreds = getDbCreds();
-        $dbCreds['host'] = '127.0.0.1';
-        $dbCreds['username'] = 'enhome_portal';
-        $dbCreds['password'] = 'BlackPanther';
-        $dbh = new PDO("mysql:dbname=enhome;host=".$dbCreds['host'],$dbCreds['username'],$dbCreds['password']);
+        $dbCreds['local']['host'] = '127.0.0.1'; // enhome.czsbom142yss.us-east-2.rds.amazonaws.com
+        $dbCreds['local']['username'] = 'enhome_portal';
+        $dbCreds['local']['password'] = 'BlackPanther';
+        $dbCreds['staging']['host'] = 'enhome.czsbom142yss.us-east-2.rds.amazonaws.com';
+        $dbCreds['staging']['username'] = 'enhome_portal';
+        $dbCreds['staging']['password'] = 'BlackPanther';
+        $dbh = new PDO("mysql:dbname=enhome;host=".$dbCreds['local']['host'],$dbCreds['local']['username'],$dbCreds['local']['password']);
         $dbh->setAttribute (PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return ($dbh);
     }
