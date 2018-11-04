@@ -1,6 +1,44 @@
 <?php include_once("../../functions.php"); getHeader("enHome App Library Curator");?>
 
+<div class='col-6-lg' id='editAssetContainer' style='display: none'>
+    <h3>Select Assets:</h3>
 
+    <select name='selectAssetId' id='selectAssetId' >
+        <?php
+            $assets = queryStmtToArray('SELECT id, name FROM enhome.assets');
+            foreach ($assets as $b){
+                echo "<option value='".$b['id']."'>".$b['name']."</option>";
+            }
+        ?>
+    </select>
+    <button onclick='updateAssetToEdit()'>Edit Asset</button>
+    <script>
+        function updateAssetToEdit(data){
+            if(data){
+                console.log('GET return data');
+                console.log( data.data);
+                assetDetail = data.data[0];
+
+                assetDetail.detail = JSON.parse(assetDetail.detail);
+                document.getElementById('assetName').value = assetDetail.assetName;
+                document.getElementById('selectedBranchId').value = assetDetail.branchId;
+                document.getElementById('selectAssetMakeId').value = assetDetail.makeId;
+                document.getElementById('assetModelNo').value = assetDetail.modelNo;
+                document.getElementById('assetModelYear').value = assetDetail.modelYear;
+                document.getElementById('assetDescription').value = assetDetail.detail.description;
+                document.getElementById('assetImageAddress').value = assetDetail.detail.otherDetails[0].value;
+            } else {
+                var queryStmt = "SELECT assets.id, branch_id as branchId, assets.name as assetName, make_id as makeId, asset_makes.name as asset_make, model_no as modelNo, model_year as modelYear, detail, added_at, updated_at, deleted_at \n\
+                    FROM enhome.assets LEFT JOIN asset_makes ON assets.make_id = asset_makes.id \n\
+                    WHERE assets.id = " + document.getElementById('selectAssetId').value;
+                    console.log('../api/query/?q=' + queryStmt);
+                    //return true;
+                get('../api/query/?q=' + queryStmt, updateAssetToEdit);
+            }
+        }
+    </script>
+
+</div>
 <form method="POST">
     <h1>Action:</h1>
     <select name='selectedAction' id='selectedAction' onchange='showContainer()'>
@@ -9,19 +47,7 @@
         <option value='editAsset' >Edit Asset</option>
         <option value='addTask'>Add Task</option>
     </select>
-    <div class='col-6-lg' id='editAssetContainer' style='display: none'>
-        <h3>Select Assets:</h3>
 
-        <select name='selectAssetId' id='selectAssetId'>
-            <?php
-                $assets = queryStmtToArray('SELECT id, name FROM enhome.assets');
-                foreach ($assets as $b){
-                    echo "<option value='".$b['id']."'>".$b['name']."</option>";
-                }
-            ?>
-        </select>
-        <input type='submit'>
-    </div>
     <div class='col-6-lg' id='addAssetContainer' style='display: none'>
         <h1>Add Asset</h1>
         <h3>Branch:</h3>
@@ -89,9 +115,12 @@
     <input type='submit'>
 
 </form>
+
 <script>
     function showContainer(){
+        console.log('Show Container');
         var selectedAction = document.getElementById('selectedAction').value;
+        console.log(selectedAction);
         document.getElementById("addAssetContainer").style.display="none";
         document.getElementById("addTaskContainer").style.display="none";
         if(selectedAction == 'addAsset'){
@@ -100,14 +129,14 @@
             document.getElementById("editAssetContainer").style.display="block";
             document.getElementById("addAssetContainer").style.display="block";
             var editAssetId = get('assetId');
-            populateAssetEdit(editAssetId);
+            //populateAssetEdit(editAssetId);
         } else if(selectedAction == 'addTask'){
             document.getElementById("addTaskContainer").style.display="block";
         }
     }
 
     function populateAssetEdit(assetId){
-        var assetDetail = <?php print_r( getAssetDetail($_POST['selectAssetId'])); ?>;
+        var assetDetail = <?php print_r( getAssetDetail($_GET['selectAssetId'])); ?>;
 
         document.getElementById('assetName').value = assetDetail.assetName;
         document.getElementById('selectedBranchId').value = assetDetail.branchId;
@@ -121,13 +150,14 @@
     }
 </script>
 <script>
-    var selectedAction = '<?php echo $_POST['selectedAction']; ?>';
+    var selectedAction = '<?php IF($_POST){
+        echo $_POST['selectedAction'];
+    } else {echo 'editAsset';}?>';
     var selectedActionContainer = document.getElementById('selectedAction');
     selectedActionContainer.value = selectedAction;
     showContainer();
 
 </script>
-
 <?php
     function getAssetDetail($assetId){
         $dbh = db_connect();
