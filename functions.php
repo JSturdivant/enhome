@@ -1,4 +1,7 @@
 <?php
+//echo 'test - '.get_current_user_id();
+$userId = get_current_user_id();
+$userMetaData = (get_user_meta(get_current_user_id()));
     // USER SPICE HEADER DATA
     if($_SESSION['loadHeader'] != false) {echo'false';}
     error_reporting(1);
