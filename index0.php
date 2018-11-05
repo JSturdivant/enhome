@@ -1,26 +1,17 @@
-<html>
-    <head>
-    <?php include_once('functions.php');
-    // test
-      ?>
-        <script>
+<?php
+/**
+ * Front to the WordPress application. This file doesn't do anything, but loads
+ * wp-blog-header.php which does and tells WordPress to load the theme.
+ *
+ * @package WordPress
+ */
 
-        </script>
-    </head>
+/**
+ * Tells WordPress to load the WordPress theme and output it.
+ *
+ * @var bool
+ */
+define('WP_USE_THEMES', true);
 
-<body onload=''>
-         <?php print_r(getHeader('Home'));?>
-    <div id='mainContent' class="container" >
-        <h1> Hello! Welcome to the EnHome Site!</h1>
-
-        <ul>
-            <li><a href='/'>Home</a>
-            <li><a href='app/'>App</a>
-            <li><a href='app/users/logout.php'>Logout</a>
-        </ul>
-    </div>
-
-</body>
-<script>
-</script>
-</html>
+/** Loads the WordPress Environment and Template */
+require( dirname( __FILE__ ) . '/wp-blog-header.php' );

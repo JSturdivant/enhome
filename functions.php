@@ -1,37 +1,37 @@
 <?php
 //echo 'test - '.get_current_user_id();
-$userId = get_current_user_id();
-$userMetaData = (get_user_meta(get_current_user_id()));
-    // USER SPICE HEADER DATA
-    if($_SESSION['loadHeader'] != false) {echo'false';}
-    error_reporting(1);
+//echo ABSPATH;
+$GLOBALS['userId'] = get_current_user_id();
+$GLOBALS['userMetaData'] = (get_user_meta(get_current_user_id()));
 
-    include_once('secure/credentials.php');
-    if(!($_SESSION['loadHeader'] === false)){
-        if($_SESSION['userSpiceHeaders'] != "off"){
-            echo "<html><head>";
+// LOAD LIBRARIE
+    require 'assets/twilio-php-master/Twilio/autoload.php';
+
+    // USER SPICE HEADER DATA
+
+    //error_reporting(1);
 
             // BOOTSTRAP 4
-            echo '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-                <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>';
+            //echo '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+            //    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>';
 
-                echo '<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>';
+            //    echo '<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+            //        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>';
 
             //echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js'></script>";
             //echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>";
 
 
         // USER AUTHENTICATION W/ USER SPICE
-            require_once 'users/init.php';
-            require_once 'users/includes/header.php';
+            //require_once 'users/init.php';
+            //require_once 'users/includes/header.php';
 
-            echo "<style>body{padding-top: 0px;}</style>"; // OVERWRITE USERSPICE CSS, TOP PADDING
-            echo "<script>var userData = ".$userDataJson."; var userToken = '".encryptToken(json_encode(array('time'=>strtotime(date('Y-m-d H:i:s')),'id'=>$userData->id)))."';</script>";
+            //echo "<style>body{padding-top: 0px;}</style>"; // OVERWRITE USERSPICE CSS, TOP PADDING
+            //echo "<script>var userData = ".$userDataJson."; var userToken = '".encryptToken(json_encode(array('time'=>strtotime(date('Y-m-d H:i:s')),'id'=>$userData->id)))."';</script>";
 
-           echo "<script src='".getPathname()."functions.js'></script>";
-       }
-    }
+//           echo "<script src='".getPathname()."functions.js'></script>";
+//       }
+//    }
 
 
     function getHeader($pageTitle){
@@ -170,9 +170,6 @@ $userMetaData = (get_user_meta(get_current_user_id()));
 
 //logEvent('functions page', 'loaded');
 //date_default_timezone_set('America/Chicago');
-
-// LOAD LIBRARIE
-    require 'assets/twilio-php-master/Twilio/autoload.php';
 
 // DB FUNCTIONS
     // CONNECT TO MySQL DB SERVER

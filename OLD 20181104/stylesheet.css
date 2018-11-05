@@ -1,0 +1,72 @@
+#map {
+    height: 50vh;
+    width: 100vw;
+}
+
+table {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+table tr th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding: 3px;
+}
+
+#sdlabsheader {
+    position: relative;
+}
+
+#alertBarContainer {
+    margin: 10px; 
+    width: 35vw;
+    display: block; 
+    position: fixed; 
+    bottom: -100px;
+    transition: all ease 0.3s;
+    -webkit-transition: all ease .3s;
+    -moz-transition: all ease .3s;
+}
+
+.loadingPanel {
+    display: none; 
+    position: fixed; 
+    left: 0; 
+    top: 0; 
+    width: 100vw; 
+    height: 100vh; 
+    color: #555;
+    text-align: center;
+    background: rgba(255,255,255,0.5); 
+    font-size: 3em;
+    font-weight: bold;
+    margin-left: 0vw;
+    padding-top: 20vh;
+    display: none;
+    transition: all ease 0.3s;
+    -webkit-transition: all ease .3s;
+    -moz-transition: all ease .3s;
+}
+
+/*   SPINNING LOADER   */
+    .loader {
+      border: 16px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 16px solid #3498db;
+      width: 30vw;
+      height: 30vw;
+      -webkit-animation: spin 2s linear infinite; /* Safari */
+      animation: spin 2s linear infinite;
+    }
+
+    /* Safari */
+    @-webkit-keyframes spin {
+      0% { -webkit-transform: rotate(0deg); }
+      100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
