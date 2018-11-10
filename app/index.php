@@ -1,5 +1,3 @@
-<?php include_once("../functions.php"); getHeader("enHome App");?>
-
 <style>
     .assetCard {
         background-color: #fafafa;
@@ -39,59 +37,10 @@
 
 </style>
 <script>
-     var userData = <?php print_r(json_encode($userData));?>;
-     log(userData.email);
+     var userData = <?php print_r(json_encode($GLOBALS['userInfo']));?>;
+     //log(userData.email);
     // test
 
-    // FACEBOOK SDK https://developers.facebook.com/apps/831655413710934/fb-login/quickstart/
-        //<script>
-          window.fbAsyncInit = function() {
-            FB.init({
-              appId      : "831655413710934",
-              cookie     : true,
-              xfbml      : true,
-              version    : "v3.1"
-            });
-            FB.AppEvents.logPageView();
-          };
-
-          (function(d, s, id){
-             var js, fjs = d.getElementsByTagName(s)[0];
-             if (d.getElementById(id)) {return;}
-             js = d.createElement(s); js.id = id;
-             js.src = "https://connect.facebook.net/en_US/sdk.js";
-             fjs.parentNode.insertBefore(js, fjs);
-           }(document, "script", "facebook-jssdk"));
-       //< /script>
-
-
-    //Taken from the sample code above, here"s some of the code that"s run during page load to check a person"s login status:
-        /*FB.getLoginStatus(function(response) {
-            statusChangecallback(response);
-        });*/
-
-
-    //The response object that"s provided to your callback contains a number of fields:
-        /*{
-            status: "connected",
-            authResponse: {
-                accessToken: "...",
-                expiresIn:"...",
-                signedRequest:"...",
-                userID:"..."
-            }
-        }*/
-
-
-        function checkLoginState() {
-            FB.getLoginStatus(function(response) {
-              statusChangecallback(response);
-            });
-        }
-
-        function statusChangecallback(response){
-            console.log(response);
-        }
 </script>
 
 <div id="mainContent" class="container" ></div>
@@ -110,12 +59,12 @@
         callback: renderConsolidatedCarePlan,
       },
       {
-        page: "myHome",
+        page: "my-home",
         title: "My Assets",
         callback: renderMyHome,
       },
       {
-        page: "addAssets",
+        page: "add-assets",
         title: "Add Assets",
         callback: renderAssetTree,
       },
@@ -125,6 +74,7 @@
         callback: renderAssetCard,
       }
     ];
+    function log(message){console.log(message);}
 
     // PAGE LOADER
 
@@ -220,6 +170,8 @@
       function getMyHome(data = null){
           if(data){
               myHome = data.data;
+              console.log('MY HOME LOADED');
+              console.log(myHome);
           } else {
               get("api/?token="+userToken+"&action=getMyHome", getMyHome);
           }
@@ -637,7 +589,7 @@
 <?php
 
   function getUserAssets(){
-    $userData = $_SESSION['userdata'];
+    $userData = $GLOBALS['userInfo'];
     $list = array();
     $assets = queryStmtToArray("SELECT
             user_assets.id as userAssetId,
@@ -647,7 +599,7 @@
             user_assets.added_at as dateAdded
         FROM enhome.user_assets
         LEFT JOIN enhome.assets ON assets.id = user_assets.asset_id
-        WHERE user_id =".$userData->id." AND user_assets.deleted_at IS NULL;");
+        WHERE user_id =".$userData->ID." AND user_assets.deleted_at IS NULL;");
     foreach($assets as $A){
       $list[] = $A;
     }
@@ -665,7 +617,7 @@
   }
 
   function getTaskLibrary(){
-    $userId = $_SESSION['userdata']->id;
+    $userId = $GLOBALS['userInfo']->ID;
     $tasks = array();
     $queryStmt = "SELECT
       taskId, assetId, taskName, type, importance, description, frequencyDays, lastCompletedAt,

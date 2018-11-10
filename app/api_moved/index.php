@@ -1,9 +1,9 @@
 <?php
 //echo __DIR__;
     header('Content-type: application/json');
-    //$_SESSION['userSpiceHeaders'] = 'off';
-    include_once("../functions.php");
-    //$_SESSION['userSpiceHeaders'] = 'on';
+    $_SESSION['userSpiceHeaders'] = 'off';
+    include_once("../../functions.php");
+    $_SESSION['userSpiceHeaders'] = 'on';
 //error_reporting(0);
   $dbh = db_connect();
   $returnArray = array();

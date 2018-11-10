@@ -1,142 +1,164 @@
 <?php
-//echo 'test - '.get_current_user_id();
-//echo ABSPATH;
-$GLOBALS['userId'] = get_current_user_id();
-$GLOBALS['userMetaData'] = (get_user_meta(get_current_user_id()));
 
-// LOAD LIBRARIE
+
+// START LOAD WORDPRESS PAGE ********************************************
+  function renderPage($pageName){
+    if($pageName == "diagnostic"){
+      echo getPageLocation();
+      displayUserInfo();
+    } else {
+      $pageBodyFile = "app/$pageName.html";
+      $pageBody = file_get_contents($pageBodyFile);
+      $pageBody = "<script>".file_get_contents('functions.js')."</script>".$pageBody;
+      print_r($pageBody);
+      include_once('app/index.php');
+
+      echo "<script>loadPage('$pageName');</script>";
+    }
+  }
+
+// END LOAD WORDPRESS PAGE ********************************************
+// *************************************************************************
+// START PAGE SPECIFIC FUNCTIONS ********************************************
+
+// END PAGE SPECIFIC FUNCTIONS ********************************************
+// *************************************************************************
+
+
+
+
+          function getPageLocation(){
+              return $_SERVER['SERVER_NAME'].__DIR__.$_SERVER['PHP_SELF'];
+          }
+
+          function detectEnvironment(){
+                if(strpos($_SERVER['SERVER_NAME'],"localhost") >= 0 ){
+                    return 'localhost';
+                }
+          }
+
+          function displayUserInfo(){
+              $current_user = $GLOBALS['userInfo'];
+              echo '<pre>';
+              print_r($current_user);
+              echo '</pre>';
+              echo 'Username: ' . $current_user->user_login . "\n";
+              echo 'User email: ' . $current_user->user_email . "\n";
+              echo 'User level: ' . $current_user->user_level . "\n";
+              echo 'User first name: ' . $current_user->user_firstname . "\n";
+              echo 'User last name: ' . $current_user->user_lastname . "\n";
+              echo 'User display name: ' . $current_user->display_name . "\n";
+              echo 'User ID: ' . $current_user->ID . "\n";
+            }
+// PRE 11/10/2018 *****************************
+
+// LOAD LIBRARIES
     require 'assets/twilio-php-master/Twilio/autoload.php';
 
-    // USER SPICE HEADER DATA
+    // OBSOLETE
+                    function getHeader($pageTitle){
 
-    //error_reporting(1);
+                       echo '<script>document.title = "'.$pageTitle.'";</script>';
+                        $menuHtmlString = "";
+                        $filePath = getPathname();
+                        $menuItems = array(
+                            array(
+                                'title'=> 'Home',
+                                'html' => '<li><a href="'.$filePath.'">Home</a></li>'
+                            ),
+                            array(
+                                'title'=> 'App' ,
+                                'html' => '<li class="dropdown"><a href="'.$filePath.'app" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">App <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="'.$filePath.'app/?page=myCarePlan">My Care Plan</a></li>
+                                    <li><a href="'.$filePath.'app/?page=myHome">My Home</a></li>
+                                    <li><a href="'.$filePath.'app/?page=addAssets">Add Assets</a></li>
+                                    <li><a href="'.$filePath.'app/?page=myTips">My Tips</a></li>
+                                </ul></li>'
+                              ),
+                              array(
+                                  'title'=> 'Blog',
+                                  'html' => '<li><a href="'.$filePath.'blog/">Blog</a></li>'
+                              ),
+                            );
 
-            // BOOTSTRAP 4
-            //echo '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-            //    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>';
+                          for($j=0; $j < count($menuItems); $j++){
+                              //print_r($menuItems[$j]['html']);
+                                $menuHtmlString = $menuHtmlString.$menuItems[$j]['html'];
+                            }
 
-            //    echo '<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-            //        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>';
+                           //$userData = $user->data();
 
-            //echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js'></script>";
-            //echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>";
+                            $loginLogout = "
+                                        <li><p style='color: #bbb; padding-top: 1.2em;'>Logged in as
+                                            <span id='navBarUserName'>".$user->email."</span></p>
+                                        </li>
+                                        <li>
+                                            <a href='".$filePath."users/logout.php' >Logout</a>
+                                        </li>";
 
-
-        // USER AUTHENTICATION W/ USER SPICE
-            //require_once 'users/init.php';
-            //require_once 'users/includes/header.php';
-
-            //echo "<style>body{padding-top: 0px;}</style>"; // OVERWRITE USERSPICE CSS, TOP PADDING
-            //echo "<script>var userData = ".$userDataJson."; var userToken = '".encryptToken(json_encode(array('time'=>strtotime(date('Y-m-d H:i:s')),'id'=>$userData->id)))."';</script>";
-
-//           echo "<script src='".getPathname()."functions.js'></script>";
-//       }
-//    }
-
-
-    function getHeader($pageTitle){
-
-       echo '<script>document.title = "'.$pageTitle.'";</script>';
-        $menuHtmlString = "";
-        $filePath = getPathname();
-        $menuItems = array(
-            array(
-                'title'=> 'Home',
-                'html' => '<li><a href="'.$filePath.'">Home</a></li>'
-            ),
-            array(
-                'title'=> 'App' ,
-                'html' => '<li class="dropdown"><a href="'.$filePath.'app" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">App <span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                    <li role="separator" class="divider"></li>
-                    <li><a href="'.$filePath.'app/?page=myCarePlan">My Care Plan</a></li>
-                    <li><a href="'.$filePath.'app/?page=myHome">My Home</a></li>
-                    <li><a href="'.$filePath.'app/?page=addAssets">Add Assets</a></li>
-                    <li><a href="'.$filePath.'app/?page=myTips">My Tips</a></li>
-                </ul></li>'
-              ),
-              array(
-                  'title'=> 'Blog',
-                  'html' => '<li><a href="'.$filePath.'blog/">Blog</a></li>'
-              ),
-            );
-
-          for($j=0; $j < count($menuItems); $j++){
-              //print_r($menuItems[$j]['html']);
-                $menuHtmlString = $menuHtmlString.$menuItems[$j]['html'];
-            }
-
-           //$userData = $user->data();
-
-            $loginLogout = "
-                        <li><p style='color: #bbb; padding-top: 1.2em;'>Logged in as
-                            <span id='navBarUserName'>".$user->email."</span></p>
-                        </li>
-                        <li>
-                            <a href='".$filePath."users/logout.php' >Logout</a>
-                        </li>";
-
-        //$userDataJson = print_r(json_encode($userData));
-        /* $menuHtml = "<nav class='navbar navbar-inverse' style='border-radius: 0px;'>
-            <div class='container-fluid'>
-                <div class='navbar-header'>
-                    <button type='button' class='navbar-toggle collapsed' data-toggle='collapse' data-target='#bs-example-navbar-collapse-1' aria-expanded='false'>
-                        <span class='sr-only'>Toggle navigation</span>
-                        <span class='icon-bar'></span><span class='icon-bar'></span>
-                        <span class='icon-bar'></span>
-                    </button>
-                    <a class='navbar-brand' href='#'>
-                        <img src='' style='width: 1.5em;'>
-                    </a>
-                </div>
-                <!-- Collect the nav links, forms, and other content for toggling -->
-                <div class='collapse navbar-collapse' id='bs-example-navbar-collapse-1'>
+                        //$userDataJson = print_r(json_encode($userData));
+                        /* $menuHtml = "<nav class='navbar navbar-inverse' style='border-radius: 0px;'>
+                            <div class='container-fluid'>
+                                <div class='navbar-header'>
+                                    <button type='button' class='navbar-toggle collapsed' data-toggle='collapse' data-target='#bs-example-navbar-collapse-1' aria-expanded='false'>
+                                        <span class='sr-only'>Toggle navigation</span>
+                                        <span class='icon-bar'></span><span class='icon-bar'></span>
+                                        <span class='icon-bar'></span>
+                                    </button>
+                                    <a class='navbar-brand' href='#'>
+                                        <img src='' style='width: 1.5em;'>
+                                    </a>
+                                </div>
+                                <!-- Collect the nav links, forms, and other content for toggling -->
+                                <div class='collapse navbar-collapse' id='bs-example-navbar-collapse-1'>
 
 
-                    <ul class='nav navbar-nav'>
-                        $menuHtmlString
-                    </ul>
-                    <ul class='nav navbar-nav navbar-right'>$loginLogout
-                    </ul>
-                </div><!-- /.navbar-collapse -->
-            </div><!-- /.container-fluid -->
-        </nav><div class='col-sm-12'><h3>$pageTitle</h3></div>"
-        . "<script>document.getElementById('navBarUserName').innerHTML=userData.email;</script>";
-*/
-        $menuHtml = "<nav class='navbar navbar-justify' style='border-radius: 0px; background: none'>
-            <div class='container-fluid'>
-                <div class='navbar-header'>
-                    <button type='button' class='navbar-toggle collapsed' data-toggle='collapse' data-target='#bs-example-navbar-collapse-1' aria-expanded='false'>
-                        <span class='sr-only'>Toggle navigation</span>
-                        <span class='icon-bar'></span><span class='icon-bar'></span>
-                        <span class='icon-bar'></span>
-                    </button>
-                    </li>
-                </div>
-                <!-- Collect the nav links, forms, and other content for toggling -->
-                <div class='collapse navbar-collapse' id='bs-example-navbar-collapse-1'>
+                                    <ul class='nav navbar-nav'>
+                                        $menuHtmlString
+                                    </ul>
+                                    <ul class='nav navbar-nav navbar-right'>$loginLogout
+                                    </ul>
+                                </div><!-- /.navbar-collapse -->
+                            </div><!-- /.container-fluid -->
+                        </nav><div class='col-sm-12'><h3>$pageTitle</h3></div>"
+                        . "<script>document.getElementById('navBarUserName').innerHTML=userData.email;</script>";
+                */
+                        $menuHtml = "<nav class='navbar navbar-justify' style='border-radius: 0px; background: none'>
+                            <div class='container-fluid'>
+                                <div class='navbar-header'>
+                                    <button type='button' class='navbar-toggle collapsed' data-toggle='collapse' data-target='#bs-example-navbar-collapse-1' aria-expanded='false'>
+                                        <span class='sr-only'>Toggle navigation</span>
+                                        <span class='icon-bar'></span><span class='icon-bar'></span>
+                                        <span class='icon-bar'></span>
+                                    </button>
+                                    </li>
+                                </div>
+                                <!-- Collect the nav links, forms, and other content for toggling -->
+                                <div class='collapse navbar-collapse' id='bs-example-navbar-collapse-1'>
 
-                    <ul class='nav navbar-tabs'>
-                        <a class='navbar-brand' href='#'>
-                            <img src='https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_120x44dp.png' style='width: 1.5em;'>
-                        </a>
-                        <span class='navbar-brand' href='index.php'>EnHome</span>
-                        $menuHtmlString
-                        $loginLogout
+                                    <ul class='nav navbar-tabs'>
+                                        <a class='navbar-brand' href='#'>
+                                            <img src='https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_120x44dp.png' style='width: 1.5em;'>
+                                        </a>
+                                        <span class='navbar-brand' href='index.php'>EnHome</span>
+                                        $menuHtmlString
+                                        $loginLogout
 
-                    </ul>
+                                    </ul>
 
-                </div><!-- /.navbar-collapse -->
-            </div><!-- /.container-fluid -->
-        </nav>
-        <script>document.getElementById('navBarUserName').innerHTML=userData.email;</script>
-        <div class='col-sm-12'><h3>$pageTitle</h3></div>";
+                                </div><!-- /.navbar-collapse -->
+                            </div><!-- /.container-fluid -->
+                        </nav>
+                        <script>document.getElementById('navBarUserName').innerHTML=userData.email;</script>
+                        <div class='col-sm-12'><h3>$pageTitle</h3></div>";
 
-        $menuHtml = $menuHtml."  </head><body>";
+                        $menuHtml = $menuHtml."  </head><body>";
 
-        print_r($menuHtml);
-         return $menuHtml;
-    }
+                        print_r($menuHtml);
+                         return $menuHtml;
+                    }
 
 
     function getPathname(){
@@ -226,6 +248,7 @@ $GLOBALS['userMetaData'] = (get_user_meta(get_current_user_id()));
     // CONVERT A SQL QUERY STATEMENT TO PHP ARRAY WITH KEYS
     function queryStmtToArray($query_stmt){
         $prod_db_connect = db_connect();
+        //echo $query_stmt;
         $query_results = $prod_db_connect->query($query_stmt);
         $keys = getQueryResultKeys($query_results);
         $data_array = array();

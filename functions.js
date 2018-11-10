@@ -1,27 +1,9 @@
+console.log('functions.js loaded');
 
-
-
-// FORCE HTTPS
-/*if (location.host !== 'localhost') {
-    if (location.protocol != 'https:')
-    {
-        location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
-    }
-}*/
-
-// LOAD jQuery
-    //function loadJquery(){
-        /*var newElement = document.createElement('script');
-        var newAttribute = document.createAttribute('src');
-        newAttribute.value = 'https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js';
-        newElement.setAttributeNode(newAttribute);
-        document.getElementsByTagName('head')[0].appendChild(newElement);*/
-    //}
-    //loadJquery();
 //GLOBAL FUNCTIONS
-    
+
     var logging = true; // TOGGLE TO TURN LOGGING ON AND OFF
-    
+
     var userInfo = {
         "token": null,
         "userId": null,
@@ -41,7 +23,7 @@
         var path = window.location.pathname;
         //console.log(window.location.pathname);
         var backupCount = ((path.match(/\//g) || []).length);
-        
+
         if(path.search("/enhome/") >= 0){
             backupCount = backupCount-2;
         } else {
@@ -53,313 +35,13 @@
         }
         //return "https://labs.tssands.com/";
         return returnPath;
-        
+
     }
-    loginCheck();
+    //loginCheck();
     //BUILD STANDARD HEADER
-    function buildEhHeader(pageTitle){
-        loginCheck();
-        log(userInfo);
-        var filePath = getPathname();
-        var ehHeader = window.document.getElementById('enhomeHeader');
-        var username = getCookie('username');
-        
-        var menuItems =[
-            {'title': 'EnHome', 'html': '<li><a href="'+filePath+'index.html">EnHome</a></li>'},
-            {'title': 'My Reports', 'html': '<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My Reports <span class="caret"></span></a>\n\
-                <ul class="dropdown-menu">\n\
-                    <li role="separator" class="divider"></li>\n\
-                    <li><a href="'+filePath+'reporter/dispatchanalytics">Load Detail</a></li>\n\
-                    <li role="separator" class="divider"></li><li class="dropdown-header">Other Reports</li>\n\
-                    <li><a href="'+filePath+'reporter/explorer">Analytics Explorer</a></li>\n\
-                </ul></li>'},
-            
-        ];
-
-        document.title = "EnHome | " + pageTitle;
-        
-        var menuHtmlString = '<li><a href="'+filePath+'index.html">EnHome</a></li>';
-            for(j=1; j < menuItems.length; j++){
-                menuHtmlString += menuItems[j].html;
-            }
-            
-        if(userData){
-            var loginLogout = '<li><p style="color: #bbb; padding-top: 1.2em;">Logged in as ' + userInfo.userName + '</p></li>\n\
-            <li><a href="'+filePath()+'users/logout.php" >Logout</a></li>';
-        } else {
-            var loginLogout = '<li><a href="'+filePath()+'users/login.php" >Login</a></li>';
-        }
-        ehHeader.innerHTML = '<nav class="navbar navbar-inverse" style="border-radius: 0px;">\n\
-            <div class="container-fluid">\n\
-                <div class="navbar-header">\n\
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">\n\
-                        <span class="sr-only">Toggle navigation</span>\n\
-                        <span class="icon-bar"></span><span class="icon-bar"></span>\n\
-                        <span class="icon-bar"></span>\n\
-                    </button>\n\
-                    <a class="navbar-brand" href="#">\n\
-                        <img src="" style="width: 1.5em;">\n\
-                    </a>\n\
-                </div>\n\
-                <!-- Collect the nav links, forms, and other content for toggling -->\n\
-                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">\n\
-                    <ul class="nav navbar-nav">\n\
-                        ' + menuHtmlString + '\
-                    </ul>\n\
-                    <ul class="nav navbar-nav navbar-right">'+loginLogout+'\n\
-                    </ul>\n\
-                </div><!-- /.navbar-collapse -->\n\
-            </div><!-- /.container-fluid -->\n\
-        </nav><div class="col-sm-12"><h3>' + pageTitle + '</h3></div>';
-
-    }
-    
-    function buildHtmlHeader(i = 0){
-        var header = document.getElementsByTagName('head');
-        //<!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-        var headElements = [
-            { // SET VIEWPORT
-                'type': 'META',
-                'attributes': [
-                    {'type': 'name', 'value': 'viewport'},
-                    {'type': 'content', 'value': 'width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1'},
-                ]
-            },
-            { // jQuery
-                'type': 'SCRIPT',
-                'attributes': [
-                    {'type': 'src', 'value': 'https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'},
-                ]
-            },
-            { // DATA TABLES JS
-                'type': 'SCRIPT',
-                'attributes': [
-                    {'type': 'src', 'value': 'https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js'},
-                ]
-            },
-            { // DATA TABLES JS
-                'type': 'SCRIPT',
-                'attributes': [
-                    {'type': 'src', 'value': 'https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js'},
-                ]
-            },
-            { // DATA TABLES CSS
-                'type': 'LINK',
-                'attributes': [
-                    {'type': 'href', 'value': 'https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css'},
-                    {'type': 'rel', 'value': 'stylesheet'},
-                ]
-            },
-            { // MOMENT JS
-                'type': 'SCRIPT',
-                'attributes': [
-                    {'type': 'src', 'value': 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js'},
-                ]
-            },
-            { 
-                'type': 'SCRIPT',
-                'attributes': [
-                    {'type': 'src', 'value': 'https://momentjs.com/downloads/moment-timezone-with-data.js'},
-                ]
-            },
-            { // GOOGLE ANALYTICS
-                'type': 'SCRIPT',
-                'attributes': [
-                    {'type': 'src', 'value': 'https://www.googletagmanager.com/gtag/js?id=UA-115578142-1'},
-                    {'type': 'async', 'value': 'true'},
-                ]
-            },
-            { // CHART JS
-                'type': 'SCRIPT',
-                'attributes': [
-                    {'type': 'src', 'value': 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.js'},
-                ]
-            },
-            { // FAVICONS
-                'type': 'LINK',
-                'attributes': [
-                    {'type': 'rel', 'value': 'apple-touch-icon'},
-                    {'type': 'sizes', 'value': '57x57'},
-                    {'type': 'href', 'value': getPathname() + 'assets/favicon/apple-icon-57x57.png'},
-                ]
-            },
-            {
-                'type': 'LINK',
-                'attributes': [
-                    {'type': 'rel', 'value': 'apple-touch-icon'},
-                    {'type': 'sizes', 'value': '60x60'},
-                    {'type': 'href', 'value': getPathname() + 'assets/favicon/apple-icon-60x60.png'},
-                ]
-            },
-            {
-                'type': 'LINK',
-                'attributes': [
-                    {'type': 'rel', 'value': 'apple-touch-icon'},
-                    {'type': 'sizes', 'value': '72x72'},
-                    {'type': 'href', 'value': getPathname() + 'assets/favicon/apple-icon-72x72.png'},
-                ]
-            },
-            {
-                'type': 'LINK',
-                'attributes': [
-                    {'type': 'rel', 'value': 'apple-touch-icon'},
-                    {'type': 'sizes', 'value': '76x76'},
-                    {'type': 'href', 'value': getPathname() + 'assets/favicon/apple-icon-76x76.png'},
-                ]
-            },
-            {
-                'type': 'LINK',
-                'attributes': [
-                    {'type': 'rel', 'value': 'apple-touch-icon'},
-                    {'type': 'sizes', 'value': '114x114'},
-                    {'type': 'href', 'value': getPathname() + 'assets/favicon/apple-icon-114x114.png'},
-                ]
-            },
-            {
-                'type': 'LINK',
-                'attributes': [
-                    {'type': 'rel', 'value': 'apple-touch-icon'},
-                    {'type': 'sizes', 'value': '120x120'},
-                    {'type': 'href', 'value': getPathname() + 'assets/favicon/apple-icon-120x120.png'},
-                ]
-            },
-            {
-                'type': 'LINK',
-                'attributes': [
-                    {'type': 'rel', 'value': 'apple-touch-icon'},
-                    {'type': 'sizes', 'value': '144x144'},
-                    {'type': 'href', 'value': getPathname() + 'assets/favicon/apple-icon-144x144.png'},
-                ]
-            },
-            {
-                'type': 'LINK',
-                'attributes': [
-                    {'type': 'rel', 'value': 'apple-touch-icon'},
-                    {'type': 'sizes', 'value': '152x152'},
-                    {'type': 'href', 'value': getPathname() + 'assets/favicon/apple-icon-152x152.png'},
-                ]
-            },
-            {
-                'type': 'LINK',
-                'attributes': [
-                    {'type': 'rel', 'value': 'apple-touch-icon'},
-                    {'type': 'sizes', 'value': '180x180'},
-                    {'type': 'href', 'value': getPathname() + 'assets/favicon/apple-icon-180x180.png'},
-                ]
-            },
-            {
-                'type': 'LINK',
-                'attributes': [
-                    {'type': 'rel', 'value': 'icon'},
-                    {'type': 'sizes', 'value': '192x192'},
-                    {'type': 'href', 'value': getPathname() + 'assets/favicon/android-icon-192x192.png'},
-                ]
-            },
-            {
-                'type': 'LINK',
-                'attributes': [
-                    {'type': 'rel', 'value': 'icon'},
-                    {'type': 'sizes', 'value': '32x32'},
-                    {'type': 'href', 'value': getPathname() + 'assets/favicon/favicon-32x32.png'},
-                ]
-            },
-            {
-                'type': 'LINK',
-                'attributes': [
-                    {'type': 'rel', 'value': 'icon'},
-                    {'type': 'sizes', 'value': '96x96'},
-                    {'type': 'href', 'value': getPathname() + 'assets/favicon/favicon-96x96.png'},
-                ]
-            },
-            {
-                'type': 'LINK',
-                'attributes': [
-                    {'type': 'rel', 'value': 'icon'},
-                    {'type': 'sizes', 'value': '16x16'},
-                    {'type': 'href', 'value': getPathname() + 'assets/favicon/favicon-16x16.png'},
-                ]
-            },
-            {
-                'type': 'LINK',
-                'attributes': [
-                    {'type': 'rel', 'value': 'manifest'},
-                    {'type': 'href', 'value': getPathname() + 'assets/favicon/manifest.json'},
-                ]
-            },
-            {
-                'type': 'META',
-                'attributes': [
-                    {'type': 'name', 'value': 'msapplication-TileColor'},
-                    {'type': 'content', 'value': '#ffffff'},
-                ]
-            },
-            {
-                'type': 'META',
-                'attributes': [
-                    {'type': 'name', 'value': 'msapplication-TileImage'},
-                    {'type': 'content', 'value': '/ms-icon-144x144.png'},
-                ]
-            },
-            {
-                'type': 'META',
-                'attributes': [
-                    {'type': 'name', 'value': 'theme-color'},
-                    {'type': 'content', 'value': '#ffffff'},
-                ]
-            },
-            { // BOOTSTRAP
-                'type': 'LINK',
-                'attributes': [
-                    {'type': 'rel', 'value': 'stylesheet'},
-                    {'type': 'href', 'value': getPathname() + 'assets/bootstrap/css/bootstrap.min.css'},
-                ]
-            },
-            {
-                'type': 'SCRIPT',
-                'attributes': [
-                    {'type': 'src', 'value': getPathname() + 'assets/bootstrap/js/bootstrap.min.js'},
-                ]
-            },
-            {
-                'type': 'SCRIPT',
-                'attributes': [
-                    {'type': 'src', 'value': getPathname() + 'assets/bootstrap/js/bootstrap-theme.min.js'},
-                ]
-            },
-            { // CUSTOM LABS STYLESHEET
-                'type': 'LINK',
-                'attributes': [
-                    {'type': 'rel', 'value': 'stylesheet'},
-                    {'type': 'href', 'value': getPathname() + 'stylesheet.css'},
-                ]
-            },
-        ];
-        var newElement = document.createElement(headElements[i].type);
-        //console.log(favicons[i]);
-        //headElements[i].attributes.push({'type': 'onload', 'value': 'buildHtmlHeader('+(i+1)+')'});
-        for(j = 0; j < headElements[i].attributes.length; j++){
-            var newAttribute = document.createAttribute(headElements[i].attributes[j].type);
-            newAttribute.value = headElements[i].attributes[j].value;
-            newElement.setAttributeNode(newAttribute);
-        }
-        header[0].appendChild(newElement);
-        
-        if (i == (headElements.length-1)){return true;} else {buildHtmlHeader(i+1);}
-        /*
-        for(i = 0; i < headElements.length; i++){
-            var newElement = document.createElement(headElements[i].type);
-            //console.log(favicons[i]);
-            for(j = 0; j < headElements[i].attributes.length; j++){
-                var newAttribute = document.createAttribute(headElements[i].attributes[j].type);
-                newAttribute.value = headElements[i].attributes[j].value;
-                newElement.setAttributeNode(newAttribute);
-            }
-            header[0].appendChild(newElement);
-        }*/
-    }
-    
+
     // RETRIEVE GET PARAMS
     function getQueryVariable(variable) {
         var query = window.location.search.substring(1);
@@ -370,10 +52,12 @@
         }
         return(false);
     }
-    
+
     // GET CALL & CALLBACK
     function get(yourUrl, callback){
+      yourUrl = "http://localhost/enhome/" + yourUrl;
         console.log(yourUrl);
+
         if((yourUrl.indexOf('labs.t') > -1 && yourUrl.indexOf('https') == -1) || yourUrl.indexOf('../') == -1){
             //yourUrl = 'https://labs.tssands.com/' + yourUrl;
             console.log('after');
@@ -383,7 +67,7 @@
             console.log(yourUrl);
         }
         var xmlHttp = new XMLHttpRequest();
-        xmlHttp.onreadystatechange = function() { 
+        xmlHttp.onreadystatechange = function() {
             if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
                 //console.log(xmlHttp.responseText);
                 //console.log('calling');
@@ -391,22 +75,22 @@
             }
         }
         //alert(yourUrl);
-        xmlHttp.open("GET", yourUrl, true); // true for asynchronous 
+        xmlHttp.open("GET", yourUrl, true); // true for asynchronous
         xmlHttp.send(null);
      }
-     
+
      // POST DATA & CALLBACK
     function post(yourUrl, postData, callback){
         //console.log(postData);
         postData = JSON.stringify(postData);
         var xmlHttp = new XMLHttpRequest();
-        xmlHttp.onreadystatechange = function() { 
+        xmlHttp.onreadystatechange = function() {
             if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
                 console.log(xmlHttp.responseText);
                 callback(JSON.parse(xmlHttp.responseText));
             }
         }
-        xmlHttp.open("POST", yourUrl, true); // true for asynchronous 
+        xmlHttp.open("POST", yourUrl, true); // true for asynchronous
         xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xmlHttp.send(postData);
     }
@@ -419,7 +103,7 @@
         var expires = "expires="+ d.toUTCString();
         document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
     }
-    
+
     //GET COOKIE
     function getCookie(cname) {
         var name = cname + "=";
@@ -513,7 +197,7 @@
     }
 
     //ENCODE  and DECODE FOR URL
-           
+
     function queryEncode(qry){
             qry = encodeURI(qry);
             qry = qry.replace(/\(/g, "%28");
@@ -534,7 +218,7 @@
 
             return qry;
     }
-    
+
 
     //GET COLOR GRADIENT
     function getGradient(){
@@ -549,30 +233,18 @@
             return 0;
         }
     }
-       
-    function formatStatus(status){
-        if(status == "loaded_event"){status = "Loaded";
-        } else if(status == "dispatch"){status = "Dispatched";
-        } else if(status == "job_requested"){status = "Job Offered";
-        } else if(status == "at_pull_point"){status = "At Pull Point";
-        } else if(status == "at_staging_area"){status = "Staged";
-        } else if(status == "called_to_well_site"){status = "Called to Well";
-        } else if(status == "at_well_site"){status = "At Well Site";}
 
-        return status;
-    }
-    
     // CONVERT ASSOCIATE JSON TO ARRAY
-    
+
     function convertJsonToArray(data){
         return Object.keys(data).map(function(k) { return data[k] });
     }
-    
+
     // RANDOM INT UP TO #
     function getRandomInt(max) {
         return Math.floor(Math.random() * Math.floor(max));
     }
-       
+
     //PRESENT JSON AS HTML TABLE
     var listDataDownload;
     function CreateTableFromJSON(jsonData, openButton = true, target = "listData") {
@@ -621,7 +293,7 @@
         divContainer.appendChild(table);
         divContainer.innerHTML += '<button onclick="JSONToCSVConvertor(listDataDownload, \'list_data\',\'export\')" class="btn-primary" style="margin: 10px;">Download as CSV</button>';
     }
-    
+
     //CHECK IF VARIABLE IS JSON
     function isJson(str) {
         try {
@@ -631,7 +303,7 @@
         }
         return true;
     }
-    
+
     //CONVERT JSON FILES TO CSV
     function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
         //console.log(JSONData);
@@ -639,7 +311,7 @@
         //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
         var arrData = typeof JSONData != 'object' ? JSON.parse(JSONData) : JSONData;
 
-        var CSV = '';    
+        var CSV = '';
         //Set Report title in first row or line
 
         CSV += ReportTitle + '\r\n\n';
@@ -677,15 +349,15 @@
             CSV += row + '\r\n';
         }
 
-        if (CSV == '') {        
+        if (CSV == '') {
             alert("Invalid data");
             return;
-        }   
+        }
 
         //Generate a file name
         var fileName = ("EnHome_");
         //this will remove the blank-spaces from the title and replace it with an underscore
-        fileName += ReportTitle.replace(/ /g,"_");   
+        fileName += ReportTitle.replace(/ /g,"_");
 
         //Initialize file format you want csv or xls
         var uri = 'data:text/csv;charset=utf-8,' + escape(CSV);
@@ -693,10 +365,10 @@
         // Now the little tricky part.
         // you can use either>> window.open(uri);
         // but this will not work in some browsers
-        // or you will not get the correct file extension    
+        // or you will not get the correct file extension
 
         //this trick will generate a temp <a /> tag
-        var link = document.createElement("a");    
+        var link = document.createElement("a");
         link.href = uri;
 
         //set the visibility hidden so it will not effect on your web-layout
@@ -862,7 +534,7 @@
         var defaultLineChartOptions  = getDefaultLineChartOptions();
         var defaultDoughnutChartOptions  = getDefaultDoughnutChartOptions();
         var defaultPieChartOptions  = getDefaultPieChartOptions();
-        
+
         //DEFAULTS
             if(chartType == null){chartType = "bar";}
             if(chartOptions == null){
@@ -923,13 +595,13 @@
                     //};
             }
             if(chartData == null){console.log('ERROR: No Chart Data');}
-            
+
         // CHECK IF EXISTS
             if(document.getElementById(chartTitleNoSpace + "Canvas")){
                 chartFound = true;
                 chartCanvas = document.getElementById(chartId);
-            } 
-            
+            }
+
         // IF CHART ALREADY EXISTS
             if (chartFound == false){
                 //CREATE DIV
@@ -953,14 +625,14 @@
                 chartCanvas.setAttributeNode(newAttribute);
                 chartTarget.appendChild(chartCanvas);
             }
-            
+
         //RENDER CHART
             //console.log('Rendering Chart');
             //console.log(chartOptions);
             window[chartTitleNoSpace] = new Chart(chartCanvas.getContext("2d"), {type: chartType, options: chartOptions, data: chartData});
-            window[chartTitleNoSpace].update(); 
+            window[chartTitleNoSpace].update();
     }
-    
+
     function addDoughnutKeyNumber(chartTitle){
         var chartTitleNoSpace = chartTitle.replace(/\s/g, '');
         var container = document.getElementById(chartTitleNoSpace + "Container");
@@ -970,10 +642,10 @@
         var keys = Object.keys(chartItem.chartData[0]);
         var keyNumber = chartItem.chartData[0][keys[0]];
         //console.log(keyNumber);
-        
+
         container.innerHTML += "<span style='position: absolute; top: 50%; left: 30%; font-size: 5em;'>"+keyNumber+"</span>";
     }
-    
+
     /*var customTooltips = function(tooltip) {
         // Tooltip Element
         var tooltipEl = document.getElementById('chartjs-tooltip');
@@ -1019,7 +691,7 @@
                         var colors = tooltip.labelColors[i];
                         var style = 'background:' + colors.backgroundColor;
                         style += '; border-color:' + colors.borderColor;
-                        style += '; border-width: 2px'; 
+                        style += '; border-width: 2px';
                         var span = '<span class="chartjs-tooltip-key" style="' + style + '"></span>';
                         innerHtml += '<tr><td>' + span + body + '</td></tr>';
                 });
@@ -1041,7 +713,7 @@
         tooltipEl.style.fontStyle = tooltip._fontStyle;
         tooltipEl.style.padding = tooltip.yPadding + 'px ' + tooltip.xPadding + 'px';
     };
-    
+
     function tooltipContent(i, data){
         return {
             label: 'test'
@@ -1078,7 +750,7 @@
         var chartDatasets = [];
         var gradient;
         var columns = (Object.keys(sqlData[0]));
-        
+
         // SET GRADIENT
         if(pendingIndex.chartGradient){
             console.log('custom gradient');
@@ -1087,13 +759,13 @@
         } else {
             gradient =  getGradient();
         }
-        
+
 
 
         // BAR CHART
         if(pendingIndex.chartType == 'bar' || pendingIndex.chartType == 'horizontalBar'){
             if(pendingIndex.chartOptions == null){pendingIndex.chartOptions = getDefaultBarChartOptions();}
-             
+
             if(pendingIndex.chartType == 'bar' ){
                 pendingIndex.chartOptions.scales.xAxes[0].scaleLabel.display = true;
                 pendingIndex.chartOptions.scales.xAxes[0].scaleLabel.labelString = columns[0];
@@ -1124,7 +796,7 @@
                       borderWidth: 1
                  });
              }
-             
+
              chartData = {
                   labels: chartLabels,
                   datasets: chartDatasets
@@ -1152,7 +824,7 @@
                     displayFormats: {
                         hour: timeFormat
                 }};
-                
+
                 for(tl = 0; tl < sqlData.length; tl++){
                     sqlData[tl][columns[0]] = moment(sqlData[tl][columns[0]]).tz('America/Chicago');
                     //console.log(sqlData[tl][columns[0]]);
@@ -1167,7 +839,7 @@
                 for(i = 0; i < sqlData.length; i++){ // CYCLE THROUGH ROWS
                     datasetData.push({x: sqlData[i][columns[0]], y: sqlData[i][columns[j]]});
                 }
-                
+
                 chartDatasets.push({
                      label: columns[j],
                      data: datasetData,
@@ -1180,7 +852,7 @@
             chartData = {
                  datasets: chartDatasets
             };
-             
+
         } else if (pendingIndex.chartType == 'doughnut' || pendingIndex.chartType == 'pie'){
             if(pendingIndex.chartOptions == null){
                 if (pendingIndex.chartType == 'doughnut' ){pendingIndex.chartOptions = getDefaultDoughnutChartOptions();
@@ -1193,7 +865,7 @@
                 for(j = 0; j < columns.length; j++){ // CYCLE THROUGH ROWS
                     datasetData.push(sqlData[i][columns[j]]);
                 }
-                
+
                 chartDatasets.push({
                      data: datasetData,
                      backgroundColor: gradient,
@@ -1205,7 +877,7 @@
                 labels: columns,
                 datasets: chartDatasets
             };
-             
+
         }
         newChartJs(pendingIndex.chartTitle, pendingIndex.chartSubtitle, pendingIndex.chartTarget, chartData, pendingIndex.chartType, pendingIndex.chartOptions);
         if(pendingIndex.chartType == 'doughnut'){
@@ -1214,180 +886,17 @@
      }
     //getSqlAsChart('Line Test', 'POs', 'welcomeChartsContainer', 'SELECT id, measured_weight, weight FROM truck_loads WHERE measured_weight IS NOT NULL', 'line');
 
-    
+
 // SECURITY
-
-    function loginCheck(){
-        setCookie('token','1234');
-        setCookie('userId','444');
-        setCookie('userName','johnny tester 123');
-        setCookie('firstName','John');
-        setCookie('lastName','Tester');
-        setCookie('email','john.sturdivant@gmail.com');
-        
-        
-        userInfo = {
-            "token": getCookie('token'),
-            "userId": getCookie('userId'),
-            "userName": getCookie('userName'),
-            "firstName": getCookie('firstName'),
-            "lastName": getCookie('lastName'),
-            "email": getCookie('email'),
-        };
-        
-        
-        /*
-        if(getCookie('privs') == '' || getCookie('username') == '' || getCookie('key') == '' || getCookie('key') == null || getCookie('key') == false){
-            if(getQueryVariable('key') == false){ 
-                window.location.href = getPathname()+ "login.html?url=" + window.location.pathname;
-                window.location.replace(getPathname()+ "login.html?url=" + window.location.pathname);
-                return false;
-            } else {
-                loginFromUrl();
-                return true;
-            }
-        }
-        */
-    }
-    
-    function login(data = null){
-        var userKey, username, pw;
-        var loginAlert = document.getElementById('loginAlert');
-        if(getQueryVariable('url') == '\\'){
-            var newUrl = 'index.html';
-        } else if(getQueryVariable('url')){
-            var newUrl = getQueryVariable('url');
-        } else {
-            var newUrl = 'index.html';
-        }
-        if(data){
-            console.log('data');
-            loadingStatus('off');
-            if(data.result.result == "success"){
-                alertBar('Success!', 'green');
-                userKey = data.data.key;
-                setCookie('key',userKey,14);
-                setCookie('role',data.data.role,14);
-                setCookie('company',data.data.company,14);
-                setCookie('cid',data.data.customer_id,14);
-                setCookie('privs',JSON.stringify(data.data.privs),14);
-                setCookie('username',data.result.detail.username,14);
-                setCookie('customer',data.result.detail.customer,14);
-                alertBar('Sending you to '+newUrl, 'green');
-                alertBar(getCookie('key'), 'green');
-                window.location.href = newUrl;
-                window.location.replace(newUrl);
-                //window.location.href = 'index.html';
-                //window.location.replace('index.html');
-            } else {
-                console.log('fail');
-                alertBar('Login failed. Please try again.', 'red');
-                document.getElementById('loginContainer').style.display = 'block';
-                return false;
-            }
-        } else {
-            console.log('no data');
-            setCookie('key','',0);
-            setCookie('role','',0);
-            setCookie('company','',0);
-            setCookie('cid','',0);
-            setCookie('privs','',0);
-            setCookie('username','',0);
-            setCookie('customer','',0);
-            console.log('no key');
-            loadingStatus('on');
-            username = document.getElementById('usernameEntry');
-            pw = document.getElementById('pwEntry');
-            //var url =  "https://labs.tssands.com/general/api/getkey/?username=" + encodeURIComponent(username.value) + "&pw=" + encodeURIComponent(pw.value);
-            var url =  getPathname()+"  general/api/getkey/?username=" + encodeURIComponent(username.value) + "&pw=" + encodeURIComponent(pw.value);
-            //console.log(url);
-            get(url, login);
-            pw.value = "";
-            return true;
-        }
-    }
-    
-    function loginFromUrl(data = null){
-        var userKey, username, pw;
-        //console.log('loginFromUrl');
-        //var loginAlert = document.getElementById('loginAlert');
-        if(data){
-            if(data.result.result == "success"){
-                console.log( "Success!");
-                userKey = data.result.detail.key;
-                console.log(userKey);
-                setCookie('key',userKey,14);
-                setCookie('role',data.data.role,14);
-                setCookie('company',data.data.company,14);
-                setCookie('cid',data.data.customer_id,14);
-                setCookie('privs',JSON.stringify(data.data.privs),14);
-                setCookie('username',data.result.detail.username,14);
-                return true;
-                //window.location.href = "http://labs.tssands.com/index.html";
-                //window.location.href = "index.html";
-                //window.location.replace("index.html");
-                //document.getElementById('mainMenu').style.display = 'block';
-                //document.getElementById('loginContainer').style.display = 'none';
-                //buildEhHeader('Home');
-            } else {
-                console.log('destroyCookies');
-                //setCookie('key','',0);
-                //setCookie('username','',0);
-                //setCookie('privs','',0);
-                //setCookie('role','',0); 
-                //loginAlert.style.display='block';
-                //loginAlert.innerHTML = "Login failed, please try again";
-                //document.getElementById('loginContainer').style.display = 'block';
-                return false;
-            }
-        } else {
-            userKey = getCookie('key');
-            if(userKey == '' || userKey == null ){
-                //var string = getQueryVariable('logincreds');
-                //console.log('logging in');
-                //var decodedString = JSON.parse(atob(string));
-                //console.log(decodedString);
-                var key = getQueryVariable('key');
-                //setCookie('key',key,14);
-                //pw = getQueryVariable('pw');
-                //console.log(key);
-                //console.log(getPathname()+"general/api/checkkey/?key=" + key);
-                get(getPathname()+"general/api/checkkey/?key=" + key, loginFromUrl);
-                return true;
-            } else {
-                //window.location.href = "index.html";
-                //window.location.replace("index.html");
-                //document.getElementById('mainMenu').style.display = 'block';
-                //document.getElementById('loginContainer').style.display = 'none';
-            }
-        }
-    }
-
-    function logout(){
-        setCookie('key','',0);
-        setCookie('username',null,0);
-        setCookie('privs',null,0);
-        setCookie('role',null,0); 
-        setCookie('cid',null,0); 
-        setCookie('company',null,0); 
-        setCookie('customer',null,0); 
-        
-        //userInfo = {};
-        
-        //loginCheck();
-    }    
 
     function successFunction(data){
         console.log('Success!function');
         console.log(data);
     }
 
-//GLOBAL VARIABLES
-    var userKey = getCookie('key');
 
 //ON LOAD
-    buildHtmlHeader();
-    
+
     // GOOGLE ANALYTICS
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
