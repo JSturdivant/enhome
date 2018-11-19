@@ -31,6 +31,10 @@
         $data = getMyHome();
     } elseif ($action == 'getAssetTasks'){
         $data = getAssetTasks($data['assetId']);
+    }  elseif($action == 'getTaskLibrary'){
+        $data = getTaskLibrary();
+    }  elseif($action == 'getAssetList'){
+        $data = getAssetList();
     }
 
 

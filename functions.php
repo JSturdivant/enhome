@@ -1,5 +1,80 @@
 <?php
+// APP PAGE FUNCTIONS
 
+
+  function getUserAssets(){
+    $userData = $GLOBALS['userInfo'];
+    $list = array();
+    $assets = queryStmtToArray("SELECT
+            user_assets.id as userAssetId,
+            user_assets.asset_id as assetId,
+            user_assets.user_asset_name as userAssetName,
+            assets.name as assetName,
+            user_assets.added_at as dateAdded
+        FROM enhome.user_assets
+        LEFT JOIN enhome.assets ON assets.id = user_assets.asset_id
+        WHERE user_id =".$userData->ID." AND user_assets.deleted_at IS NULL;");
+    foreach($assets as $A){
+      $list[] = $A;
+    }
+    print_r(json_encode($list));
+  }
+
+  function getAssetTree(){
+    $queryStmt = "SELECT branches.id as branchId, parent_id as parentBranchId, branches.name as branchName FROM enhome.branches WHERE deleted_at IS NULL";
+    PrintQueryStmtAsJson($queryStmt);
+  }
+
+  function getAssetList(){
+    $queryStmt = "SELECT branch_id as parentBranchId, id as assetId, name as assetName, detail as assetDetail from enhome.assets WHERE deleted_at IS NULL;";
+    PrintQueryStmtAsJson($queryStmt);
+  }
+
+  function getTaskLibrary(){
+    $userId = $GLOBALS['userInfo']->ID;
+    $tasks = array();
+    $queryStmt = "SELECT
+      taskId, assetId, taskName, type, importance, description, frequencyDays, lastCompletedAt,
+      	DATE_ADD(lastCompletedAt, interval frequencyDays day) as nextDueDate
+      FROM (
+        SELECT
+        	tasks.id as taskId, tasks.asset_id as assetId,  tasks.name as taskName, task_types.name as type,
+        	importance, description, frequency_days as frequencyDays ,
+            max(task_completion.completed_at) as lastCompletedAt
+        FROM enhome.tasks
+        LEFT JOIN enhome.task_types ON tasks.type_id = task_types.id
+        LEFT JOIN enhome.task_completion ON task_completion.task_id = tasks.id AND task_completion.user_id = $userId
+        WHERE tasks.asset_id IN (SELECT asset_id FROM enhome.user_assets WHERE user_id = $userId AND tasks.deleted_at IS NULL)
+        GROUP BY tasks.id
+      ) as t1;";
+      //echo $queryStmt;
+    $taskData = queryStmtToArray($queryStmt);
+    foreach ($taskData as $T){ // CYCLE THROUGH ALL TASKS
+      $found = false;
+      for($i = 0; $i < count($tasks); $i++){ // CYCLE THROUGH ALL FORMATTED ASSET OBJECTS
+        if($tasks[$i]['assetId'] == $T['assetId']){
+          $found = true; // OBJECT FOR ASSET IS FOUND
+          $tasks[$i]['tasks'][] = array( // INSERT NEW TASK INTO PRE-EXISTING ASSET
+            'taskId' => $T['taskId'],
+            'type' => $T['type'],
+            'taskName' => $T['taskName'],
+            'frequencyDays' => $T['frequencyDays'],
+            'lastCompletedAt' => $T['lastCompletedAt'],
+            'nextDueDate' => $T['nextDueDate'],
+            'importance' => $T['importance'],
+            'description' => $T['description'],
+          );
+        }
+      }
+
+      // IF ASSET OBJECT NOT FOUND
+      $tasks[] = array(
+        'assetId' => $T['assetId'],
+        'tasks' => array()
+      );
+    }
+    return $tasks;
+  }
 
 // START LOAD WORDPRESS PAGE ********************************************
   function renderPage($pageName){
@@ -8,13 +83,38 @@
       displayUserInfo();
     } else {
       $pageBodyFile = "app/$pageName.html";
-      $pageBody = file_get_contents($pageBodyFile);
+      $pageBody = file_get_contents("app/$pageName.html");
       $pageBody = "<script>".file_get_contents('functions.js')."</script>".$pageBody;
       print_r($pageBody);
-      include_once('app/index.php');
+      //include_once('app/index.php');
+      echo '
+      <div id="mainContent" class="container" ></div>
+      <script>
 
-      echo "<script>loadPage('$pageName');</script>";
+          var pages = getPages();
+          var myHome = getMyHome();
+          var completedTasks = [];
+          var pageContent ;
+          var backupbranchId = 0;
+
+      </script>';
+      echo "<script>modifyUrl([], '".$pageName."');loadPage();</script>;";
+      //echo "<script>loadPage('$pageName');</script>";
     }
+  }
+
+  function loadLibraries(){
+   // BOOTSTRAP 4
+    echo '<head>';
+      echo '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+          <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>';
+
+      echo '<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>';
+
+      echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js'></script>";
+      echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>";
+       echo '</head>';
   }
 
 // END LOAD WORDPRESS PAGE ********************************************
