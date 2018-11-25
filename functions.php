@@ -1,6 +1,14 @@
 <?php
 // APP PAGE FUNCTIONS
 
+  function getSecrets($key){
+    //echo 'test1';
+    //print_r(file_get_contents('http://localhost/enhome/secrets.json'));
+    $secrets = json_decode(file_get_contents('http://localhost/secrets.json'),true);
+    //print_r($secrets);
+    //  echo 'test2';
+    return $secrets[$key];
+  }
 
   function getUserAssets(){
     $userData = $GLOBALS['userInfo'];
@@ -21,7 +29,9 @@
   }
 
   function getAssetTree(){
-    $queryStmt = "SELECT branches.id as branchId, parent_id as parentBranchId, branches.name as branchName FROM enhome.branches WHERE deleted_at IS NULL";
+    $queryStmt = "SELECT
+      branches.id as branchId, parent_id as parentBranchId, branches.name as branchName
+      FROM enhome.branches WHERE deleted_at IS NULL";
     PrintQueryStmtAsJson($queryStmt);
   }
 
@@ -44,34 +54,37 @@
         FROM enhome.tasks
         LEFT JOIN enhome.task_types ON tasks.type_id = task_types.id
         LEFT JOIN enhome.task_completion ON task_completion.task_id = tasks.id AND task_completion.user_id = $userId
-        WHERE tasks.asset_id IN (SELECT asset_id FROM enhome.user_assets WHERE user_id = $userId AND tasks.deleted_at IS NULL)
+        LEFT JOIN enhome.asset_tasks ON asset_tasks.task_id = tasks.id
+        WHERE asset_tasks.deleted_at IS NULL AND asset_tasks.asset_id IN (SELECT asset_id FROM enhome.user_assets WHERE user_id = $userId AND tasks.deleted_at IS NULL)
         GROUP BY tasks.id
       ) as t1;";
       //echo $queryStmt;
     $taskData = queryStmtToArray($queryStmt);
-    foreach ($taskData as $T){ // CYCLE THROUGH ALL TASKS
-      $found = false;
-      for($i = 0; $i < count($tasks); $i++){ // CYCLE THROUGH ALL FORMATTED ASSET OBJECTS
-        if($tasks[$i]['assetId'] == $T['assetId']){
-          $found = true; // OBJECT FOR ASSET IS FOUND
-          $tasks[$i]['tasks'][] = array( // INSERT NEW TASK INTO PRE-EXISTING ASSET
-            'taskId' => $T['taskId'],
-            'type' => $T['type'],
-            'taskName' => $T['taskName'],
-            'frequencyDays' => $T['frequencyDays'],
-            'lastCompletedAt' => $T['lastCompletedAt'],
-            'nextDueDate' => $T['nextDueDate'],
-            'importance' => $T['importance'],
-            'description' => $T['description'],
-          );
+    if(count($taskData) > 0){
+      foreach ($taskData as $T){ // CYCLE THROUGH ALL TASKS
+        $found = false;
+        for($i = 0; $i < count($tasks); $i++){ // CYCLE THROUGH ALL FORMATTED ASSET OBJECTS
+          if($tasks[$i]['assetId'] == $T['assetId']){
+            $found = true; // OBJECT FOR ASSET IS FOUND
+            $tasks[$i]['tasks'][] = array( // INSERT NEW TASK INTO PRE-EXISTING ASSET
+              'taskId' => $T['taskId'],
+              'type' => $T['type'],
+              'taskName' => $T['taskName'],
+              'frequencyDays' => $T['frequencyDays'],
+              'lastCompletedAt' => $T['lastCompletedAt'],
+              'nextDueDate' => $T['nextDueDate'],
+              'importance' => $T['importance'],
+              'description' => $T['description'],
+            );
+          }
         }
-      }
 
-      // IF ASSET OBJECT NOT FOUND
-      $tasks[] = array(
-        'assetId' => $T['assetId'],
-        'tasks' => array()
-      );
+        // IF ASSET OBJECT NOT FOUND
+        $tasks[] = array(
+          'assetId' => $T['assetId'],
+          'tasks' => array()
+        );
+      }
     }
     return $tasks;
   }
@@ -82,30 +95,41 @@
       echo getPageLocation();
       displayUserInfo();
     } else {
-      $pageBodyFile = "app/$pageName.html";
-      $pageBody = file_get_contents("app/$pageName.html");
-      $pageBody = "<script>".file_get_contents('functions.js')."</script>".$pageBody;
+      if(!$pageName){
+        $pageName = 'my-home';
+      }
+      //$pageBody = file_get_contents("app/$pageName.php");
+      include_once("app/$pageName.php");
+      $pageBody = "<script>".file_get_contents('functions.js')."</script>";
       print_r($pageBody);
       //include_once('app/index.php');
       echo '
       <div id="mainContent" class="container" ></div>
       <script>
-
           var pages = getPages();
           var myHome = getMyHome();
           var completedTasks = [];
           var pageContent ;
           var backupbranchId = 0;
-
       </script>';
-      echo "<script>modifyUrl([], '".$pageName."');loadPage();</script>;";
+      echo "<script>modifyUrl([], '".$pageName."');loadPage();</script>";
       //echo "<script>loadPage('$pageName');</script>";
     }
   }
 
+  function loadStylesheet(){
+    echo '<style>';
+    print file_get_contents('app/stylesheet.css');
+    echo '</style>';
+  }
+
   function loadLibraries(){
    // BOOTSTRAP 4
-    echo '<head>';
+    /*echo '<style>';
+    print file_get_contents('https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css');
+    echo '</style>';*/
+
+
       echo '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
           <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>';
 
@@ -114,7 +138,7 @@
 
       echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js'></script>";
       echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>";
-       echo '</head>';
+
   }
 
 // END LOAD WORDPRESS PAGE ********************************************
@@ -127,138 +151,171 @@
 
 
 
-          function getPageLocation(){
-              return $_SERVER['SERVER_NAME'].__DIR__.$_SERVER['PHP_SELF'];
-          }
+function getPageLocation(){
+    return $_SERVER['SERVER_NAME'].__DIR__.$_SERVER['PHP_SELF'];
+}
 
-          function detectEnvironment(){
-                if(strpos($_SERVER['SERVER_NAME'],"localhost") >= 0 ){
-                    return 'localhost';
-                }
-          }
+function detectEnvironment(){
+      if(strpos($_SERVER['SERVER_NAME'],"localhost") >= 0 ){
+          return 'localhost';
+      }
+}
 
-          function displayUserInfo(){
-              $current_user = $GLOBALS['userInfo'];
-              echo '<pre>';
-              print_r($current_user);
-              echo '</pre>';
-              echo 'Username: ' . $current_user->user_login . "\n";
-              echo 'User email: ' . $current_user->user_email . "\n";
-              echo 'User level: ' . $current_user->user_level . "\n";
-              echo 'User first name: ' . $current_user->user_firstname . "\n";
-              echo 'User last name: ' . $current_user->user_lastname . "\n";
-              echo 'User display name: ' . $current_user->display_name . "\n";
-              echo 'User ID: ' . $current_user->ID . "\n";
-            }
+function displayUserInfo(){
+    $current_user = $GLOBALS['userInfo'];
+    echo '<pre>';
+    print_r($current_user);
+    echo '</pre>';
+    echo 'Username: ' . $current_user->user_login . "\n";
+    echo 'User email: ' . $current_user->user_email . "\n";
+    echo 'User level: ' . $current_user->user_level . "\n";
+    echo 'User first name: ' . $current_user->user_firstname . "\n";
+    echo 'User last name: ' . $current_user->user_lastname . "\n";
+    echo 'User display name: ' . $current_user->display_name . "\n";
+    echo 'User ID: ' . $current_user->ID . "\n";
+  }
+
+// CURATION FUNCTIONS
+
+
+  function replaceAssetInLibrary($data){
+      $dbh = db_connect();
+
+      $updateStmt = "UPDATE `enhome`.`assets` SET `deleted_at`= now() WHERE `id`='".$_POST['assetId']."';";
+      //echo $updateStmt;
+      $insert = $dbh->exec($updateStmt);
+  }
+
+  function addAssetToLibrary($data){
+      $dbh = db_connect();
+      $data['detail'] = array(
+          'description' => $_POST['assetDescription'],
+          'otherDetails' => array(
+              array(
+                  'type' => 'img',
+                  'name' => 'Image',
+                  'value' => $_POST['assetImageAddress']
+              )
+          ),
+      );
+
+      $data['detail'] = json_encode($data['detail']);
+
+      $insertStmt = "INSERT INTO `enhome`.`assets`
+          (
+              `branch_id`,
+              `name`,
+              `make_id`,
+              `model_no`,
+              `model_year`,
+              `detail`,
+              `added_at`,
+              `updated_at`
+          )
+          VALUES
+          (
+              '".$data['selectedBranchId']."',
+              '".$data['assetName']."',
+              '".$data['selectAssetMakeId']."',
+              '".$data['assetModelNo']."',
+              '".$data['assetModelYear']."',
+              '".$data['detail']."',
+              now(),
+              now()
+          );";
+      //echo $insertStmt;
+      $insert = $dbh->exec($insertStmt);
+  }
+
+  function mysqlPrep($string){
+    // LINE BREAKS
+      $string = str_replace("\n", '\\n', $string);
+      $string = str_replace("\r", '', $string);
+
+    // QUOTES
+      $string = str_replace("'", '"', $string);
+
+      //$string = urlencode($string);
+;
+    return $string;
+  }
+
+  function addTaskToLibrary($data){
+      $dbh = db_connect();
+
+
+      $descriptionJson = json_encode(array(
+        'intro' => mysqlPrep($data['taskIntro']),
+        'tools' => mysqlPrep($data['taskTools']),
+        'bom' => mysqlPrep($data['taskMaterials']),
+        'images' => mysqlPrep($data['savedImages']),
+        'steps' => mysqlPrep($data['taskSteps']),
+      ));
+
+      $insertStmt = "INSERT INTO `enhome`.`tasks`
+      (
+          `name`,
+          `type_id`,
+          `importance`,
+          `description`,
+          `frequency_days`,
+          `added_at`,
+          `updated_at`
+      )
+      VALUES
+          (
+          '".$data['taskName']."',
+          '".$data['selectedTaskTypeId']."',
+          '".$data['selectedTaskImportance']."',
+          '".$descriptionJson."',
+          '".$data['selectedFrequencyDays']."',
+          now(),
+          now()
+      );";
+      //echo $insertStmt;
+    $insert = $dbh->exec($insertStmt);
+
+    // GET TASK ID FOR NEW TASK
+      $selectStmt = "SELECT id FROM tasks WHERE name = '".$data['taskName']."' AND description = '".$descriptionJson."' AND added_at > date_sub(now(), interval 2 minute)";
+      $taskIdData = $dbh->query($selectStmt);
+      foreach($taskIdData as $T){
+        $taskId = $T[0];
+      }
+
+    // INSERT ALL ASSOCIATED ASSETS FOR TASK
+    $associatedAssets = json_decode(str_replace('\"', '"', $data['associatedAssetsList']), true); //json_decode($data['associatedAssetsList']);
+    for ($aa = 0; $aa < count($associatedAssets); $aa++){
+      $insertStmt2 = "INSERT INTO `enhome`.`asset_tasks`
+      (
+          `asset_id`,
+          `task_id`,
+          `added_at`
+      )
+      VALUES
+          (
+          '".$associatedAssets[$aa]['id']."',
+          '".$taskId."',
+          now()
+      );";
+      //echo $insertStmt;
+    $insert = $dbh->exec($insertStmt2);
+    }
+  }
+
+    function replaceTaskInLibrary($data){
+        $dbh = db_connect();
+        $updateStmt = "UPDATE `enhome`.`tasks` SET `deleted_at`= now() WHERE `id`='".$_POST['taskId']."';";
+        //echo $updateStmt;
+        $insert = $dbh->exec($updateStmt);
+    }
+
+
 // PRE 11/10/2018 *****************************
 
 // LOAD LIBRARIES
     require 'assets/twilio-php-master/Twilio/autoload.php';
 
     // OBSOLETE
-                    function getHeader($pageTitle){
-
-                       echo '<script>document.title = "'.$pageTitle.'";</script>';
-                        $menuHtmlString = "";
-                        $filePath = getPathname();
-                        $menuItems = array(
-                            array(
-                                'title'=> 'Home',
-                                'html' => '<li><a href="'.$filePath.'">Home</a></li>'
-                            ),
-                            array(
-                                'title'=> 'App' ,
-                                'html' => '<li class="dropdown"><a href="'.$filePath.'app" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">App <span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li role="separator" class="divider"></li>
-                                    <li><a href="'.$filePath.'app/?page=myCarePlan">My Care Plan</a></li>
-                                    <li><a href="'.$filePath.'app/?page=myHome">My Home</a></li>
-                                    <li><a href="'.$filePath.'app/?page=addAssets">Add Assets</a></li>
-                                    <li><a href="'.$filePath.'app/?page=myTips">My Tips</a></li>
-                                </ul></li>'
-                              ),
-                              array(
-                                  'title'=> 'Blog',
-                                  'html' => '<li><a href="'.$filePath.'blog/">Blog</a></li>'
-                              ),
-                            );
-
-                          for($j=0; $j < count($menuItems); $j++){
-                              //print_r($menuItems[$j]['html']);
-                                $menuHtmlString = $menuHtmlString.$menuItems[$j]['html'];
-                            }
-
-                           //$userData = $user->data();
-
-                            $loginLogout = "
-                                        <li><p style='color: #bbb; padding-top: 1.2em;'>Logged in as
-                                            <span id='navBarUserName'>".$user->email."</span></p>
-                                        </li>
-                                        <li>
-                                            <a href='".$filePath."users/logout.php' >Logout</a>
-                                        </li>";
-
-                        //$userDataJson = print_r(json_encode($userData));
-                        /* $menuHtml = "<nav class='navbar navbar-inverse' style='border-radius: 0px;'>
-                            <div class='container-fluid'>
-                                <div class='navbar-header'>
-                                    <button type='button' class='navbar-toggle collapsed' data-toggle='collapse' data-target='#bs-example-navbar-collapse-1' aria-expanded='false'>
-                                        <span class='sr-only'>Toggle navigation</span>
-                                        <span class='icon-bar'></span><span class='icon-bar'></span>
-                                        <span class='icon-bar'></span>
-                                    </button>
-                                    <a class='navbar-brand' href='#'>
-                                        <img src='' style='width: 1.5em;'>
-                                    </a>
-                                </div>
-                                <!-- Collect the nav links, forms, and other content for toggling -->
-                                <div class='collapse navbar-collapse' id='bs-example-navbar-collapse-1'>
-
-
-                                    <ul class='nav navbar-nav'>
-                                        $menuHtmlString
-                                    </ul>
-                                    <ul class='nav navbar-nav navbar-right'>$loginLogout
-                                    </ul>
-                                </div><!-- /.navbar-collapse -->
-                            </div><!-- /.container-fluid -->
-                        </nav><div class='col-sm-12'><h3>$pageTitle</h3></div>"
-                        . "<script>document.getElementById('navBarUserName').innerHTML=userData.email;</script>";
-                */
-                        $menuHtml = "<nav class='navbar navbar-justify' style='border-radius: 0px; background: none'>
-                            <div class='container-fluid'>
-                                <div class='navbar-header'>
-                                    <button type='button' class='navbar-toggle collapsed' data-toggle='collapse' data-target='#bs-example-navbar-collapse-1' aria-expanded='false'>
-                                        <span class='sr-only'>Toggle navigation</span>
-                                        <span class='icon-bar'></span><span class='icon-bar'></span>
-                                        <span class='icon-bar'></span>
-                                    </button>
-                                    </li>
-                                </div>
-                                <!-- Collect the nav links, forms, and other content for toggling -->
-                                <div class='collapse navbar-collapse' id='bs-example-navbar-collapse-1'>
-
-                                    <ul class='nav navbar-tabs'>
-                                        <a class='navbar-brand' href='#'>
-                                            <img src='https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_120x44dp.png' style='width: 1.5em;'>
-                                        </a>
-                                        <span class='navbar-brand' href='index.php'>EnHome</span>
-                                        $menuHtmlString
-                                        $loginLogout
-
-                                    </ul>
-
-                                </div><!-- /.navbar-collapse -->
-                            </div><!-- /.container-fluid -->
-                        </nav>
-                        <script>document.getElementById('navBarUserName').innerHTML=userData.email;</script>
-                        <div class='col-sm-12'><h3>$pageTitle</h3></div>";
-
-                        $menuHtml = $menuHtml."  </head><body>";
-
-                        print_r($menuHtml);
-                         return $menuHtml;
-                    }
 
 
     function getPathname(){
@@ -296,25 +353,12 @@
 // DB FUNCTIONS
     // CONNECT TO MySQL DB SERVER
     function db_connect () {
-        //$dbCreds = getDbCreds();
-        $dbCreds['local']['host'] = '127.0.0.1'; // enhome.czsbom142yss.us-east-2.rds.amazonaws.com
-        $dbCreds['local']['username'] = 'enhome_portal';
-        $dbCreds['local']['password'] = 'BlackPanther';
-        $dbCreds['staging']['host'] = 'enhome.czsbom142yss.us-east-2.rds.amazonaws.com';
-        $dbCreds['staging']['username'] = 'enhome_portal';
-        $dbCreds['staging']['password'] = 'BlackPanther';
+        $dbCreds = getSecrets('db');
         $dbh = new PDO("mysql:dbname=enhome;host=".$dbCreds['local']['host'],$dbCreds['local']['username'],$dbCreds['local']['password']);
         $dbh->setAttribute (PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return ($dbh);
     }
 
-    function getDbCreds2(){
-        return array(
-            'host' => '127.0.0.1',
-            'username' => 'enhome_portal',
-            'password' => 'BlackPanther',
-        );
-    }
 
     function getEnvironment(){
         if ( $_SERVER['SERVER_NAME'] == "tsslabsreporter-env.us-east-1.elasticbeanstalk.com" ||  $_SERVER['SERVER_NAME'] == "labs.tssands.com"){
@@ -336,11 +380,13 @@
         //echo count($data);
         //print_r($data);
         $fields=array();
-        $fields = array_keys($data->fetch(PDO::FETCH_ASSOC));
         $keys = array();
-        FOREACH ($fields as $field){
-            $keys[] = $field;
-        }
+        //if(is_array($data)){
+          $fields = array_keys($data->fetch(PDO::FETCH_ASSOC));
+          FOREACH ($fields as $field){
+              $keys[] = $field;
+          }
+        //}
         return $keys;
     }
 
@@ -349,18 +395,19 @@
     function queryStmtToArray($query_stmt){
         $prod_db_connect = db_connect();
         //echo $query_stmt;
-        $query_results = $prod_db_connect->query($query_stmt);
-        $keys = getQueryResultKeys($query_results);
         $data_array = array();
-        $query_results->execute();
-        foreach ($query_results as $R){
-            $new_row = array();
-            for($i = 0; $i < count($keys); $i++){
-                $new_row[$keys[$i]] = $R[$i];
-            }
-            $data_array[] = $new_row;
+        $query_results = $prod_db_connect->query($query_stmt);
+        if(count($query_results) > 0){
+          $keys = getQueryResultKeys($query_results);
+          $query_results->execute();
+          foreach ($query_results as $R){
+              $new_row = array();
+              for($i = 0; $i < count($keys); $i++){
+                  $new_row[$keys[$i]] = $R[$i];
+              }
+              $data_array[] = $new_row;
+          }
         }
-
         return $data_array;
     }
 
@@ -370,8 +417,6 @@
         list($usec, $sec) = explode(" ", microtime());
         return ((float)$usec + (float)$sec);
     }
-
-
 
     // CONVERT PHP ARRAY TO HTML TABLE
     function arrayToHtmlTable($data,$args=false) {
@@ -619,10 +664,8 @@
     //return $protocol . "://" . $_SERVER['HTTP_HOST'];
 }
 
-
-
 // SENDGRID
-    function sendEmail($fromName = 'TSS', $fromEmail = 'noreply@tssands.com', $toEmail, $subject, $body, $attachmentUrl = null, $attachmentFilename = 'attachment'){
+    function sendEmail($fromName = 'enHome', $fromEmail = 'noreply@enho.me', $toEmail, $subject, $body, $attachmentUrl = null, $attachmentFilename = 'attachment'){
         require("assets/sendgrid-php/sendgrid-php.php");
         $myKey = '{YOUR_API_KEY_HERE}';
 
@@ -650,10 +693,4 @@
         //echo $response->body();
         return $response;
     }
-
-
-//LOAD FUNCTIONS';
-    //$prod_db_connect = db_connect();
-
-    //echo "<script src='".getPathname()."functions.js'></script>";
 ?>

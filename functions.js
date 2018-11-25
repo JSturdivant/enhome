@@ -38,7 +38,8 @@ function log(message){console.log(message);}
     if(page != null){ // IF PAGE PASSED DIRECTLY INTO APP INPUTS
       console.log(page);
       var pageUrl = ('?page='+page);
-      history.pushState('Enhome', "EnHome App", pageUrl) ;
+      //history.pushState('Enhome', "EnHome App", pageUrl) ;
+      modifyUrl(null,page);
       showPageContent(page);
       return true;
     } else {
@@ -153,6 +154,7 @@ function log(message){console.log(message);}
           //alert(assetCard);
           var newAssetCard = "";
           newAssetCard += "<div class='col-sm-4'>";
+          //newAssetCard += "<div class='assetCardContainer'>";
               newAssetCard += assetCard;
               newAssetCard += "<button onclick='deleteAsset("+myHome[m].userAssetId+")'>Delete</button>";
           newAssetCard += "</div>";
@@ -348,7 +350,6 @@ function log(message){console.log(message);}
         return assetCardHtml;
     }
 
-    //document.body.innerHTML += renderAssetCard(1);
     function renderAssetPage(assetId){ // RETURN THE HTML FOR A CARD DISPLAYING THE ASSET
         var myAsset = lookupAsset(assetId);
         console.log("Render Asset Card");
@@ -371,6 +372,7 @@ function log(message){console.log(message);}
         //alert(assetCardHtml);
         return assetCardHtml;
     }
+
     function renderAssetTasks(data = null){
         if(whatIsIt(data) == "Object"){
             var tasks = data.data;
@@ -414,6 +416,7 @@ function log(message){console.log(message);}
     function lookupAsset(assetId){ // LOOKUP AN ASSET FROM THE ASSET LIST
         for(al = 0; al < assetList.length; al++){
             if(assetList[al].assetId == assetId){
+              console.log(assetList[al].assetDetail);
                 assetList[al].assetDetail = JSON.parse(assetList[al].assetDetail);
                 return assetList[al];
             }
@@ -452,12 +455,15 @@ function log(message){console.log(message);}
     }
 
     function modifyUrl(params, page = null){
+        var pageId = getQueryVariable('page_id');
         if(!page){
             var page = getQueryVariable('page');
         }
-        var pageUrl = ('?page='+page);
-        for(p = 0; p < params.length; p++){
-            pageUrl += "&" + params[p].title + "=" + params[p].value;
+        var pageUrl = ('?page_id='+pageId+'&page='+page);
+        if(params){
+          for(p = 0; p < params.length; p++){
+              pageUrl += "&" + params[p].title + "=" + params[p].value;
+          }
         }
         history.pushState('Enhome', "EnHome App", pageUrl) ;
     }
@@ -532,15 +538,6 @@ function log(message){console.log(message);}
 //GLOBAL FUNCTIONS
 
     var logging = true; // TOGGLE TO TURN LOGGING ON AND OFF
-
-    var userInfo = {
-        "token": null,
-        "userId": null,
-        "userName": null,
-        "firstName": null,
-        "lastName": null,
-        "email": null,
-    };
 
     function log(message){
         if (logging){

@@ -15,13 +15,13 @@
   $tokenData['regTime'] = date('Y-m-d H:i:s',$tokenData['time']);
   // DATABASE UPDATE FUNCTIONS
 
-    // CHECK FOR UPDATE REQUESTS
-      $action = $_GET['action'];
-      //$_GET['data'] = json_encode(array('assetId' => 99));
-      $data = json_decode($_GET['data'],1);
-      if ($action == 'addAsset'){
+  // CHECK FOR UPDATE REQUESTS
+    $action = $_GET['action'];
+    //$_GET['data'] = json_encode(array('assetId' => 99));
+    $data = json_decode($_GET['data'],1);
+    if ($action == 'addAsset'){
         $sqlStmt = addAsset($data['assetId'], $data['newAssetName'], $data['newAssetInstallationDate']);
-      } elseif ($action == 'deleteAsset'){
+    } elseif ($action == 'deleteAsset'){
         $sqlStmt = deleteAsset($data['assignedAssetId']);
     } elseif ($action == 'completeTask'){
         $sqlStmt = completeTask($data['completedTaskId'], $data['userAssetId']);
@@ -72,12 +72,14 @@
         	max(task_completion.completed_at) as lastCompletedAt,
             DATE_ADD(max(task_completion.completed_at), interval frequency_days day) as nextDueDate
         FROM enhome.user_assets
-        JOIN enhome.tasks ON tasks.asset_id = user_assets.asset_id
+        JOIN enhome.asset_tasks ON asset_tasks.asset_id = user_assets.asset_id
+        JOIN enhome.tasks ON tasks.id = asset_tasks.task_id
         LEFT JOIN enhome.task_completion ON task_completion.task_id = tasks.id
         LEFT JOIN enhome.task_types ON task_types.id = tasks.type_id
         LEFT JOIN enhome.assets ON user_assets.asset_id = assets.id
         WHERE user_assets.user_id = $userId
         AND user_assets.deleted_at IS NULL
+        AND asset_tasks.deleted_at IS NULL
         GROUP BY user_assets.id, tasks.id
         ORDER BY DATE_ADD(max(task_completion.completed_at), interval frequency_days day) ASC";
 

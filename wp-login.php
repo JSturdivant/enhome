@@ -114,8 +114,8 @@ function login_header( $title = 'Log In', $message = '', $wp_error = null ) {
 		$login_header_url   = network_home_url();
 		$login_header_title = get_network()->site_name;
 	} else {
-		$login_header_url   = __( 'https://wordpress.org/' );
-		$login_header_title = __( 'Powered by WordPress' );
+		$login_header_url   = __( 'index.php' );
+		$login_header_title = __( 'Enrich Your Home' );
 	}
 
 	/**
@@ -857,13 +857,13 @@ case 'confirmaction' :
 	if ( is_wp_error( $result ) ) {
 		wp_die( $result );
 	}
-	
+
 	/**
 	 * Fires an action hook when the account action has been confirmed by the user.
-	 * 
+	 *
 	 * Using this you can assume the user has agreed to perform the action by
 	 * clicking on the link in the confirmation email.
-	 * 
+	 *
 	 * After firing this action hook the page will redirect to wp-login a callback
 	 * redirects or exits first.
 	 *
