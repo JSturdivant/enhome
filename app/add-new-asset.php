@@ -37,10 +37,8 @@
   <input type='text' name='assetModelNo' id='assetModelNo'>
   <h3>Model Year(s):</h3>
   <input type='text' name='assetModelYear' id='assetModelYear'>
-  <h3>Asset Image Address:</h3>
-  <input type='text' name='assetImageAddress' id='assetImageAddress'>
-  <div id='imageUploadContainer'></div>
     <!-- IMAGE UPLOADER -->
+      <div id='imageUploadContainer'></div>
       <script>
         addImageUploader("imageUploadContainer", "assetDescription");
       </script>

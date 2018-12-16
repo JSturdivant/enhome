@@ -224,7 +224,10 @@ function log(message){console.log(message);}
     var currentdate = new Date();
     var newObjectID = currentdate.getHours() +currentdate.getMinutes() + currentdate.getSeconds() + Math.random();
     document.getElementById(targetDiv).innerHTML = "    <div id='savedImagesListing'></div> \n\
-        <h4>Upload Image</h4> \n\
+    <h4>Add Image from Url:</h4> \n\
+    <input type='text' name='assetImageAddress' id='assetImageAddress'> \n\
+    <div id='imageUploadContainer'></div> \n\
+    <h4>Upload Image</h4> \n\
         <input id='file-upload"+newObjectID+"' name='file-upload' type='file' \n\
             accept='.gif,.jpg,.jpeg,.png' > \n\
           <br><input type='hidden'  name='picfile' id='picfile' placeholder='Choose your picture.jpg'> \n\
