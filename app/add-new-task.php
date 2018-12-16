@@ -71,34 +71,7 @@
   <h3>Steps:</h3>
       <textarea name='taskSteps' id='taskSteps'></textarea>
 <script>
-
-
-addImageUploader("imageUploadContainer");
-
-// INSERT IMAGES
-function insertImageAtCursor(myValue) {
-  console.log(myValue);
-  myField = document.getElementById('taskSteps');
-    //IE support
-    if (document.selection) {
-        myField.focus();
-        sel = document.selection.createRange();
-        sel.text = myValue;
-    }
-    //MOZILLA and others
-    else if (myField.selectionStart || myField.selectionStart == '0') {
-        var startPos = myField.selectionStart;
-        var endPos = myField.selectionEnd;
-        myField.value = myField.value.substring(0, startPos)
-            + myValue
-            + myField.value.substring(endPos, myField.value.length);
-    } else {
-        myField.value += myValue;
-    }
-}
-
-
-
+  addImageUploader("imageUploadContainer", "taskSteps");
 </script>
 <br>
   <input type='submit' value='Save'>

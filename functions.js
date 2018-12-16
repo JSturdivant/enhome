@@ -220,11 +220,11 @@ function log(message){console.log(message);}
   var savedImages = [];
   var imageUrl;
 
-  function addImageUploader(targetDiv = "imageUploadContainer"){
+  function addImageUploader(targetDiv = "imageUploadContainer", insertTarget){
     var currentdate = new Date();
     var newObjectID = currentdate.getHours() +currentdate.getMinutes() + currentdate.getSeconds() + Math.random();
     document.getElementById(targetDiv).innerHTML = "    <div id='savedImagesListing'></div> \n\
-        <h4>Add New Image</h4> \n\
+        <h4>Upload Image</h4> \n\
         <input id='file-upload"+newObjectID+"' name='file-upload' type='file' \n\
             accept='.gif,.jpg,.jpeg,.png' > \n\
           <br><input type='hidden'  name='picfile' id='picfile' placeholder='Choose your picture.jpg'> \n\
@@ -233,7 +233,7 @@ function log(message){console.log(message);}
           <input type='text'  name='imageTitle' id='imageTitle' placeholder='Image Title'> \n\
           <input type='hidden' name='savedImages' id='savedImages'> \n\
           <textarea id='imageCaption' placeholder='Caption'></textarea> \n\
-          <a href='javascript:void(0)' id='saveImageButton' style='display:none; font-weight: bold; font-size: 2em;' onclick='saveImage()'>Save</a> \n\
+          <a href='javascript:void(0)' id='saveImageButton' style='display:none; font-weight: bold; font-size: 2em;' onclick='saveImage(\""+insertTarget+"\")'>Save</a> \n\
     ";
     addFileUploader("file-upload"+newObjectID);
   }
@@ -266,7 +266,7 @@ function log(message){console.log(message);}
     console.log(data);
   }
 
-  function saveImage(){
+  function saveImage(insertTarget = null){
     var newImageUrl = document.getElementById('imageUrl');
     var newImageTitle = document.getElementById('imageTitle');
     var newImageCaption = document.getElementById('imageCaption');
@@ -279,13 +279,13 @@ function log(message){console.log(message);}
       'shortcode': '*[image:'+newImageTitle.value+']*',
     });
 
-    showSavedImages();
+    showSavedImages(insertTarget);
 
     newImageUrl.innerHTML = '';
     newImageCaption.value = '';
   }
 
-  function showSavedImages(){
+  function showSavedImages(insertTarget = null){
       var savedImagesListing = document.getElementById('savedImagesListing');
       var savedImagesStore = document.getElementById('savedImages');
       console.log(savedImages);
@@ -293,8 +293,36 @@ function log(message){console.log(message);}
       //savedImagesListing.innerHTML = JSON.stringify(savedImages);
       savedImagesListing.innerHTML = '<h4>Saved Images</h4>';
       for(si = 0; si < savedImages.length; si++){
-        newImageHtml = "<div style='display: block; vertical-align: top;'><div style='display: inline-block; vertical-align: top;'><img src='"+savedImages[si].url+"' style='width: 90px;'></div><div style='display: inline-block;'><b>"+savedImages[si].title+"</b><br><i>"+savedImages[si].caption+"</i><br><a href='javascript:void(0)' onclick='insertImageAtCursor(\""+savedImages[si].shortcode+"\")'>Insert into Instruction</a> | <a href='"+savedImages[si].url+"' target='new'>View</a> | <a href='javascript:void(0)' onclick='removeImage("+si+")'>Remove</a></div></div>";
+        newImageHtml = "<div style='display: block; vertical-align: top;'>\n\
+          <div style='display: inline-block; vertical-align: top;'><img src='"+savedImages[si].url+"' style='width: 90px;'></div> \n\
+          <div style='display: inline-block;'><b>"+savedImages[si].title+"</b>\n\
+          <br><i>"+savedImages[si].caption+"</i>\n\
+          <br><a href='javascript:void(0)' onclick='insertImageAtCursor(\""+savedImages[si].shortcode+"\", \""+insertTarget+"\")'>Insert into Instruction</a> \n\
+            | <a href='"+savedImages[si].url+"' target='new'>View</a> \n\
+            | <a href='javascript:void(0)' onclick='removeImage("+si+")'>Remove</a></div></div>";
         savedImagesListing.innerHTML += newImageHtml;
+      }
+  }
+
+  // INSERT IMAGES
+  function insertImageAtCursor(myValue, targetField) {
+    console.log(myValue);
+    myField = document.getElementById(targetField);
+      //IE support
+      if (document.selection) {
+          myField.focus();
+          sel = document.selection.createRange();
+          sel.text = myValue;
+      }
+      //MOZILLA and others
+      else if (myField.selectionStart || myField.selectionStart == '0') {
+          var startPos = myField.selectionStart;
+          var endPos = myField.selectionEnd;
+          myField.value = myField.value.substring(0, startPos)
+              + myValue
+              + myField.value.substring(endPos, myField.value.length);
+      } else {
+          myField.value += myValue;
       }
   }
 

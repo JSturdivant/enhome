@@ -37,13 +37,16 @@
   <input type='text' name='assetModelNo' id='assetModelNo'>
   <h3>Model Year(s):</h3>
   <input type='text' name='assetModelYear' id='assetModelYear'>
-  <h3>Asset Description:</h3>
-  <textarea name='assetDescription' id='assetDescription'></textarea>
   <h3>Asset Image Address:</h3>
   <input type='text' name='assetImageAddress' id='assetImageAddress'>
+  <div id='imageUploadContainer'></div>
     <!-- IMAGE UPLOADER -->
-
+      <script>
+        addImageUploader("imageUploadContainer", "assetDescription");
+      </script>
     <!-- END IMAGE UPLOADER -->
+  <h3>Asset Description:</h3>
+  <textarea name='assetDescription' id='assetDescription'></textarea>
 
   <hr>
   <input type='submit' value='Save'>
