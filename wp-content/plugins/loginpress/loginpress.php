@@ -3,7 +3,7 @@
 * Plugin Name: LoginPress - Customizing the WordPress Login
 * Plugin URI: https://WPBrigade.com/wordpress/plugins/loginpress/
 * Description: LoginPress is the best <code>wp-login</code> Login Page Customizer plugin by <a href="https://wpbrigade.com/">WPBrigade</a> which allows you to completely change the layout of login, register and forgot password forms.
-* Version: 1.1.14
+* Version: 1.1.17
 * Author: WPBrigade
 * Author URI: https://WPBrigade.com/
 * Text Domain: loginpress
@@ -22,7 +22,7 @@ if ( ! class_exists( 'LoginPress' ) ) :
     /**
     * @var string
     */
-    public $version = '1.1.14';
+    public $version = '1.1.17';
 
     /**
     * @var The single instance of the class
@@ -81,7 +81,7 @@ if ( ! class_exists( 'LoginPress' ) ) :
       include_once( LOGINPRESS_DIR_PATH . 'custom.php' );
       include_once( LOGINPRESS_DIR_PATH . 'classes/class-loginpress-setup.php' );
       include_once( LOGINPRESS_DIR_PATH . 'classes/class-loginpress-ajax.php' );
-      include_once( LOGINPRESS_DIR_PATH . 'classes/class-loginpress-filter-plugin.php' );
+      // include_once( LOGINPRESS_DIR_PATH . 'classes/class-loginpress-filter-plugin.php' );
       include_once( LOGINPRESS_DIR_PATH . 'classes/class-loginpress-developer-hooks.php' );
       include_once( LOGINPRESS_DIR_PATH . 'classes/class-loginpress-notifications.php' );
       if ( is_multisite() ) {
@@ -335,7 +335,7 @@ if ( ! class_exists( 'LoginPress' ) ) :
     */
     function load_loginpress_assets() {
 
-      wp_enqueue_script( 'loginpress-script', plugins_url( 'js/loginpress.js', __FILE__ ), false, LOGINPRESS_VERSION );
+      wp_enqueue_script( 'loginpress-script', plugins_url( 'js/loginpress.js', __FILE__ ), array( 'jquery' ), LOGINPRESS_VERSION );
 
       // Array for localize.
       $loginpress_localize = array(

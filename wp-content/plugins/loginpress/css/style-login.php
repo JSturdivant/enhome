@@ -3,7 +3,7 @@
  * Get option and check the key exists in it.
  *
  * @since 1.0.0
- * @version 1.1.6
+ * @version 1.1.17
  * * * * * * * * * * * * * * * */
 
 
@@ -18,7 +18,12 @@ function loginpress_get_option_key( $loginpress_key, $loginpress_array ) {
 
 	if ( array_key_exists( $loginpress_key, $loginpress_array ) ) {
 
-		return $loginpress_array[ $loginpress_key ];
+		if ( 'loginpress_custom_js' == $loginpress_key || 'loginpress_custom_css' == $loginpress_key ) {
+			return $loginpress_array[ $loginpress_key ];
+		} else {
+			return esc_js( $loginpress_array[ $loginpress_key ] );
+		}
+
 	}
 }
 

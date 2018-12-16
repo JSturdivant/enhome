@@ -65,23 +65,15 @@
   <h3>Materials:</h3>
   <textarea name='taskMaterials' id='taskMaterials'></textarea>
 
-  <!-- IMAGE UP:OADER -->
+  <!-- IMAGE UPLOADER -->
   <h3>Images:</h3>
-    <div id='savedImagesListing'></div>
-    <h4>Add New Image</h4>
-    <input id="file-upload" name='file-upload' type="file"
-        accept=".gif,.jpg,.jpeg,.png">
-      <br><input type='hidden'  name='picfile' id='picfile' placeholder='Choose your picture.jpg'>
-      <span  name='imageUrl' id='imageUrl'></span>
-      <div id='imageUploadingStatus' style='display:none;'>Uploading...</div>
-      <input type='text'  name='imageTitle' id='imageTitle' placeholder='Image Title'>
-      <input type='hidden' name='savedImages' id='savedImages'>
-      <textarea id='imageCaption' placeholder='Caption'></textarea>
-      <a href='javascript:void(0)' id='saveImageButton' style='display:none; font-weight: bold; font-size: 2em;' onclick='saveImage()'>Save</a>
-
+      <div id='imageUploadContainer'></div>
   <h3>Steps:</h3>
       <textarea name='taskSteps' id='taskSteps'></textarea>
 <script>
+
+
+addImageUploader("imageUploadContainer");
 
 // INSERT IMAGES
 function insertImageAtCursor(myValue) {
@@ -105,77 +97,9 @@ function insertImageAtCursor(myValue) {
     }
 }
 
-// IMAGE UPLOADER
-var savedImages = [];
-var imageUrl;
 
-window.addEventListener("load", function() {
-  document.getElementById("file-upload").onchange = function(event) {
-    var reader = new FileReader();
-    reader.readAsDataURL(event.srcElement.files[0]);
-    var me = this;
-    reader.onload = function () {
-      var fileContent = reader.result;
-    console.log(fileContent);
-    document.getElementById('picfile').value = fileContent;
-    var d = new Date();
-    var dir = d.getFullYear() + "/" + (d.getMonth()+1) + "/" + d.getDate();
-    var uploadData = {'picfile': fileContent, 'directory': dir};
-    post('api/s3upload/',uploadData, showResult);
-    document.getElementById('imageUploadingStatus').style.display = 'block';
-    }
-}});
-
-function showResult(data){
-  document.getElementById('imageUploadingStatus').style.display = 'none';
-  imageUrl = data.data.url;
-  document.getElementById('imageUrl').innerHTML = imageUrl;
-  document.getElementById('saveImageButton').style.display = 'block';
-  console.log(data);
-}
-
-function saveImage(){
-  var newImageUrl = document.getElementById('imageUrl');
-  var newImageTitle = document.getElementById('imageTitle');
-  var newImageCaption = document.getElementById('imageCaption');
-  document.getElementById('saveImageButton').style.dispay = 'none';
-
-  savedImages.push({
-    'url': imageUrl, //newImageUrl.innerHTML,
-    'title': newImageTitle.value,
-    'caption': newImageCaption.value,
-    'shortcode': '*[image:'+newImageTitle.value+']*',
-  });
-
-  showSavedImages();
-
-  newImageUrl.innerHTML = '';
-  newImageCaption.value = '';
-}
-
-function showSavedImages(){
-    var savedImagesListing = document.getElementById('savedImagesListing');
-    var savedImagesStore = document.getElementById('savedImages');
-    console.log(savedImages);
-    savedImagesStore.value = JSON.stringify(savedImages);
-    //savedImagesListing.innerHTML = JSON.stringify(savedImages);
-    savedImagesListing.innerHTML = '<h4>Saved Images</h4>';
-    for(si = 0; si < savedImages.length; si++){
-      newImageHtml = "<div style='display: block; vertical-align: top;'><div style='display: inline-block; vertical-align: top;'><img src='"+savedImages[si].url+"' style='width: 90px;'></div><div style='display: inline-block;'><b>"+savedImages[si].title+"</b><br><i>"+savedImages[si].caption+"</i><br><a href='javascript:void(0)' onclick='insertImageAtCursor(\""+savedImages[si].shortcode+"\")'>Insert into Instruction</a> | <a href='"+savedImages[si].url+"' target='new'>View</a> | <a href='javascript:void(0)' onclick='removeImage("+si+")'>Remove</a></div></div>";
-      savedImagesListing.innerHTML += newImageHtml;
-    }
-}
-
-function removeImage(si){
-  savedImages.splice(si,1);
-
-  showSavedImages();
-}
 
 </script>
-
+<br>
   <input type='submit' value='Save'>
 </form>
-<?php
-
-?>

@@ -8,6 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 * Handling all the Notification calls in LoginPress.
 *
 * @since  1.1.14
+* @version 1.1.15
 * @class LoginPress_Notification
 */
 
@@ -237,12 +238,10 @@ if ( ! class_exists( 'LoginPress_Notification' ) ) :
         add_site_option( 'loginpress_friday_sale_active_time', $activation_time );
       endif;
 
-      // 432000 = 5 Days in seconds.
-      // if ( time() - $activation_time > 432000 ) :
-
-        add_action( 'admin_notices' , array( $this, 'loginpress_friday_sale_notice_text' ) );
-      // endif;
-
+      if ( ! has_action( 'loginpress_pro_add_template' ) ) :
+        // add_action( 'admin_notices' , array( $this, 'loginpress_friday_sale_notice_text' ) );
+        add_action( 'admin_notices', array( $this, 'new_loginpress_friday_sale_notice_text' ) );
+      endif;
     }
 
     /**
@@ -260,22 +259,65 @@ if ( ! class_exists( 'LoginPress_Notification' ) ) :
       ?>
       <div class="loginpress-alert-notice black_friday_notic">
         <a href="<?php echo $dismiss_url ?>" class="notice-dismiss" ><span class="screen-reader-text"></span></a>
-        <a href="https://wpbrigade.com/wordpress/plugins/loginpress-pro/?utm_source=loginpress-lite&utm_medium=freepluginbanner&utm_campaign=blackfriday2018" target="_blank">
+        <a href="https://wpbrigade.com/wordpress/plugins/loginpress-pro/?utm_source=loginpress-lite&utm_medium=freepluginbanner&utm_campaign=early20" target="_blank">
         <div class="loginpress-alert-thumbnail">
           <img src="<?php echo plugins_url( '../img/notification_logo.svg', __FILE__ ) ?>" alt="">
         </div>
         <div class="loginpress-alert-text black_friday">
           <img src="<?php echo plugins_url( '../img/black-friday.png', __FILE__ ) ?>" alt="">
-        
+
          <div class="loginpress-alert-button-section black_friday_sale_btn">
-          <a href="https://wpbrigade.com/wordpress/plugins/loginpress-pro/?utm_source=loginpress-lite&utm_medium=freepluginbanner-button&utm_campaign=blackfriday2018" class="loginpress-alert-button" target="_blank"><?php _e( 'GET ALL 51% OFF', 'loginpress' ) ?></a>
-        </div>  
+          <a href="https://wpbrigade.com/wordpress/plugins/loginpress-pro/?utm_source=loginpress-lite&utm_medium=freepluginbanner-button&utm_campaign=early20" class="loginpress-alert-button" target="_blank"><?php _e( 'FLAT 51% OFF', 'loginpress' ) ?></a>
+        </div>
         </div>
         </a>
-       
+
       </div>
     <?php
     }
+
+    /**
+     * [new_loginpress_friday_sale_notice_text description]
+     * @return [type] [description]
+     * @since 1.1.15
+     */
+    function new_loginpress_friday_sale_notice_text() {
+
+      $scheme      = ( parse_url( $_SERVER['REQUEST_URI'], PHP_URL_QUERY ) ) ? '&' : '?';
+      $url         = $_SERVER['REQUEST_URI'] . $scheme . 'loginpress_friday_sale_dismiss=yes';
+      $dismiss_url = wp_nonce_url( $url, 'loginpress-friday-sale-nonce' );
+
+			if ( current_user_can( 'install_plugins' ) && ! has_action( 'loginpress_pro_add_template' ) ) {
+
+          wp_enqueue_style( 'loginpress_review_stlye', plugins_url( '../css/style-review.css', __FILE__ ), array(), LOGINPRESS_VERSION );
+
+  				$message = '<p> ';
+  				$message .= sprintf (__( '<strong>Biggest Winter Deal</strong> in the WordPress Universe! Get <strong>LoginPress Pro and all Premium Add-ons</strong> with <strong>20%% OFF</strong> [Limited Availability].<a href="https://wpbrigade.com/wordpress/plugins/loginpress-pro/?utm_source=loginpress-lite&utm_medium=freepluginbanner-button&utm_campaign=early20" target="_blank" style="text-decoration: none;"><span class="dashicons dashicons-smiley" style="margin-left: 10px;"></span> Grab The Deal</a>
+  					<a href="%1$s" style="text-decoration: none; margin-left: 10px;"><span class="dashicons dashicons-dismiss"></span> I\'m good with free version</a>' ), $dismiss_url );
+  				$message .=  "</p>";
+  				$class = 'loginpress-notice-success';
+  			  $this->loginpress_admin_notice( $message, $class );
+				}
+			}
+
+    /**
+     * Add custom admin notice
+     * @param  string $message Custom Message
+     * @param  string $class   loginpress-notice-success,loginpress-notice-danger
+     *
+     * @since 1.1.15
+     */
+     function loginpress_admin_notice( $message, $class = 'loginpress-notice-success' ) {
+    		echo '<div class="loginpress-notification '. $class .'">
+    							<a class="" href="#" aria-label="Dismiss the welcome panel"></a>
+    							<div class="loginpress-notice-logo">
+    								<img src="' . plugins_url( '../img/thumbnail/gray-loginpress.png', __FILE__ ) . '" alt="">
+    							</div>
+    							<div class="loginpress-notice-discription">
+    								<p>' . $message .'</p>
+    							</div>
+    				</div>';
+     }
 
     /**
   	 *	Check and Dismiss addon message.
@@ -283,7 +325,7 @@ if ( ! class_exists( 'LoginPress_Notification' ) ) :
   	 *	@since 1.1.3
   	 */
   	private function loginpress_friday_sale_dismissal() {
-
+      //delete_site_option( 'loginpress_friday_sale_dismiss' );
   		if ( ! is_admin() ||
   			! current_user_can( 'manage_options' ) ||
   			! isset( $_GET['_wpnonce'] ) ||

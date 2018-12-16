@@ -163,19 +163,6 @@ class Ai1wm_Extensions {
 			);
 		}
 
-		// Add WebDAV extension
-		if ( defined( 'AI1WMWE_PLUGIN_NAME' ) ) {
-			$extensions[ AI1WMWE_PLUGIN_NAME ] = array(
-				'key'      => AI1WMWE_PLUGIN_KEY,
-				'title'    => AI1WMWE_PLUGIN_TITLE,
-				'about'    => AI1WMWE_PLUGIN_ABOUT,
-				'basename' => AI1WMWE_PLUGIN_BASENAME,
-				'version'  => AI1WMWE_VERSION,
-				'requires' => '1.0',
-				'short'    => AI1WMWE_PLUGIN_SHORT,
-			);
-		}
-
 		// Add Mega Extension
 		if ( defined( 'AI1WMEE_PLUGIN_NAME' ) ) {
 			$extensions[ AI1WMEE_PLUGIN_NAME ] = array(
@@ -228,6 +215,19 @@ class Ai1wm_Extensions {
 			);
 		}
 
+		// Add S3 Client Extension
+		if ( defined( 'AI1WMNE_PLUGIN_NAME' ) ) {
+			$extensions[ AI1WMNE_PLUGIN_NAME ] = array(
+				'key'      => AI1WMNE_PLUGIN_KEY,
+				'title'    => AI1WMNE_PLUGIN_TITLE,
+				'about'    => AI1WMNE_PLUGIN_ABOUT,
+				'basename' => AI1WMNE_PLUGIN_BASENAME,
+				'version'  => AI1WMNE_VERSION,
+				'requires' => '1.0',
+				'short'    => AI1WMNE_PLUGIN_SHORT,
+			);
+		}
+
 		// Add Amazon S3 extension
 		if ( defined( 'AI1WMSE_PLUGIN_NAME' ) ) {
 			$extensions[ AI1WMSE_PLUGIN_NAME ] = array(
@@ -264,6 +264,19 @@ class Ai1wm_Extensions {
 				'version'  => AI1WMLE_VERSION,
 				'requires' => '2.29',
 				'short'    => AI1WMLE_PLUGIN_SHORT,
+			);
+		}
+
+		// Add WebDAV extension
+		if ( defined( 'AI1WMWE_PLUGIN_NAME' ) ) {
+			$extensions[ AI1WMWE_PLUGIN_NAME ] = array(
+				'key'      => AI1WMWE_PLUGIN_KEY,
+				'title'    => AI1WMWE_PLUGIN_TITLE,
+				'about'    => AI1WMWE_PLUGIN_ABOUT,
+				'basename' => AI1WMWE_PLUGIN_BASENAME,
+				'version'  => AI1WMWE_VERSION,
+				'requires' => '1.0',
+				'short'    => AI1WMWE_PLUGIN_SHORT,
 			);
 		}
 

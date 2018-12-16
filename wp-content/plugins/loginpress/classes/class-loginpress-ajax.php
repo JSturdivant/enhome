@@ -31,6 +31,7 @@ if ( ! class_exists( 'LoginPress_AJAX' ) ) :
         'help'       => false,
         'deactivate' => false,
         'optout_yes' => false,
+        'presets'    => false
       );
 
       foreach ( $ajax_calls as $ajax_call => $no_priv ) {
@@ -280,6 +281,25 @@ if ( ! class_exists( 'LoginPress_AJAX' ) ) :
       }
 
       update_option( '_loginpress_optin', 'no' );
+      wp_die();
+    }
+
+    static function presets() {
+
+      check_ajax_referer( 'loginpress-preset-nonce', 'security' );
+
+      if ( ! current_user_can( 'manage_options' ) ) {
+        wp_die( 'No cheating, huh!' );
+      }
+
+      $selected_preset = get_option( 'customize_presets_settings', true );
+
+      if ( $selected_preset == 'default1' ) {
+      	include_once LOGINPRESS_ROOT_PATH . 'css/themes/default-1.php';
+      	echo first_presets();
+      } else {
+      	do_action( 'loginpress_add_pro_theme', $selected_preset );
+      }
       wp_die();
     }
   }

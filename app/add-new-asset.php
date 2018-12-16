@@ -41,6 +41,11 @@
   <textarea name='assetDescription' id='assetDescription'></textarea>
   <h3>Asset Image Address:</h3>
   <input type='text' name='assetImageAddress' id='assetImageAddress'>
+    <!-- IMAGE UPLOADER -->
+
+    <!-- END IMAGE UPLOADER -->
+
+  <hr>
   <input type='submit' value='Save'>
 
 </form>

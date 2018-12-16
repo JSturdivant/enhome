@@ -733,13 +733,6 @@ function ai1wm_plugin_filters( $filters = array() ) {
 		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-glacier-extension';
 	}
 
-	// WebDAV Extension
-	if ( defined( 'AI1WMWE_PLUGIN_BASENAME' ) ) {
-		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMWE_PLUGIN_BASENAME );
-	} else {
-		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-webdav-extension';
-	}
-
 	// Mega Extension
 	if ( defined( 'AI1WMEE_PLUGIN_BASENAME' ) ) {
 		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMEE_PLUGIN_BASENAME );
@@ -768,6 +761,13 @@ function ai1wm_plugin_filters( $filters = array() ) {
 		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-pcloud-extension';
 	}
 
+	// S3 Client Extension
+	if ( defined( 'AI1WNE_PLUGIN_BASENAME' ) ) {
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMNE_PLUGIN_BASENAME );
+	} else {
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-s3-client-extension';
+	}
+
 	// Amazon S3 Extension
 	if ( defined( 'AI1WMSE_PLUGIN_BASENAME' ) ) {
 		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMSE_PLUGIN_BASENAME );
@@ -787,6 +787,13 @@ function ai1wm_plugin_filters( $filters = array() ) {
 		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMLE_PLUGIN_BASENAME );
 	} else {
 		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-url-extension';
+	}
+
+	// WebDAV Extension
+	if ( defined( 'AI1WMWE_PLUGIN_BASENAME' ) ) {
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMWE_PLUGIN_BASENAME );
+	} else {
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-webdav-extension';
 	}
 
 	return $filters;
@@ -853,11 +860,6 @@ function ai1wm_active_servmask_plugins( $plugins = array() ) {
 		$plugins[] = AI1WMRE_PLUGIN_BASENAME;
 	}
 
-	// WebDAV Extension
-	if ( defined( 'AI1WMWE_PLUGIN_BASENAME' ) ) {
-		$plugins[] = AI1WMWE_PLUGIN_BASENAME;
-	}
-
 	// Mega Extension
 	if ( defined( 'AI1WMEE_PLUGIN_BASENAME' ) ) {
 		$plugins[] = AI1WMEE_PLUGIN_BASENAME;
@@ -878,6 +880,11 @@ function ai1wm_active_servmask_plugins( $plugins = array() ) {
 		$plugins[] = AI1WMPE_PLUGIN_BASENAME;
 	}
 
+	// S3 Client Extension
+	if ( defined( 'AI1WMNE_PLUGIN_BASENAME' ) ) {
+		$plugins[] = AI1WMNE_PLUGIN_BASENAME;
+	}
+
 	// Amazon S3 Extension
 	if ( defined( 'AI1WMSE_PLUGIN_BASENAME' ) ) {
 		$plugins[] = AI1WMSE_PLUGIN_BASENAME;
@@ -891,6 +898,11 @@ function ai1wm_active_servmask_plugins( $plugins = array() ) {
 	// URL Extension
 	if ( defined( 'AI1WMLE_PLUGIN_BASENAME' ) ) {
 		$plugins[] = AI1WMLE_PLUGIN_BASENAME;
+	}
+
+	// WebDAV Extension
+	if ( defined( 'AI1WMWE_PLUGIN_BASENAME' ) ) {
+		$plugins[] = AI1WMWE_PLUGIN_BASENAME;
 	}
 
 	return $plugins;

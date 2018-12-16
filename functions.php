@@ -100,7 +100,7 @@
       }
       //$pageBody = file_get_contents("app/$pageName.php");
       include_once("app/$pageName.php");
-      $pageBody = "<script>".file_get_contents('functions.js')."</script>";
+      //$pageBody = "<script>".file_get_contents('functions.js')."</script>";
       print_r($pageBody);
       //include_once('app/index.php');
       echo '

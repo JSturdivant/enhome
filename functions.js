@@ -215,6 +215,95 @@ function log(message){console.log(message);}
       }
   }
 
+
+// IMAGE UPLOADER ******************************
+  var savedImages = [];
+  var imageUrl;
+
+  function addImageUploader(targetDiv = "imageUploadContainer"){
+    var currentdate = new Date();
+    var newObjectID = currentdate.getHours() +currentdate.getMinutes() + currentdate.getSeconds() + Math.random();
+    document.getElementById(targetDiv).innerHTML = "    <div id='savedImagesListing'></div> \n\
+        <h4>Add New Image</h4> \n\
+        <input id='file-upload"+newObjectID+"' name='file-upload' type='file' \n\
+            accept='.gif,.jpg,.jpeg,.png' > \n\
+          <br><input type='hidden'  name='picfile' id='picfile' placeholder='Choose your picture.jpg'> \n\
+          <span  name='imageUrl' id='imageUrl'></span> \n\
+          <div id='imageUploadingStatus' style='display:none;'>Uploading...</div> \n\
+          <input type='text'  name='imageTitle' id='imageTitle' placeholder='Image Title'> \n\
+          <input type='hidden' name='savedImages' id='savedImages'> \n\
+          <textarea id='imageCaption' placeholder='Caption'></textarea> \n\
+          <a href='javascript:void(0)' id='saveImageButton' style='display:none; font-weight: bold; font-size: 2em;' onclick='saveImage()'>Save</a> \n\
+    ";
+    addFileUploader("file-upload"+newObjectID);
+  }
+
+  function addFileUploader(elementId){
+    window.addEventListener("load", function() {
+      document.getElementById(elementId).onchange = function(event) {
+        var reader = new FileReader();
+        reader.readAsDataURL(event.srcElement.files[0]);
+        var me = this;
+        reader.onload = function () {
+          var fileContent = reader.result;
+          console.log(fileContent);
+          document.getElementById('picfile').value = fileContent;
+          var d = new Date();
+          var dir = d.getFullYear() + "/" + (d.getMonth()+1) + "/" + d.getDate();
+          var uploadData = {'picfile': fileContent, 'directory': dir};
+          post('api/s3upload/',uploadData, showResult);
+          document.getElementById('imageUploadingStatus').style.display = 'block';
+        }
+      }
+    });
+  }
+
+  function showResult(data){
+    document.getElementById('imageUploadingStatus').style.display = 'none';
+    imageUrl = data.data.url;
+    document.getElementById('imageUrl').innerHTML = imageUrl;
+    document.getElementById('saveImageButton').style.display = 'block';
+    console.log(data);
+  }
+
+  function saveImage(){
+    var newImageUrl = document.getElementById('imageUrl');
+    var newImageTitle = document.getElementById('imageTitle');
+    var newImageCaption = document.getElementById('imageCaption');
+    document.getElementById('saveImageButton').style.dispay = 'none';
+
+    savedImages.push({
+      'url': imageUrl, //newImageUrl.innerHTML,
+      'title': newImageTitle.value,
+      'caption': newImageCaption.value,
+      'shortcode': '*[image:'+newImageTitle.value+']*',
+    });
+
+    showSavedImages();
+
+    newImageUrl.innerHTML = '';
+    newImageCaption.value = '';
+  }
+
+  function showSavedImages(){
+      var savedImagesListing = document.getElementById('savedImagesListing');
+      var savedImagesStore = document.getElementById('savedImages');
+      console.log(savedImages);
+      savedImagesStore.value = JSON.stringify(savedImages);
+      //savedImagesListing.innerHTML = JSON.stringify(savedImages);
+      savedImagesListing.innerHTML = '<h4>Saved Images</h4>';
+      for(si = 0; si < savedImages.length; si++){
+        newImageHtml = "<div style='display: block; vertical-align: top;'><div style='display: inline-block; vertical-align: top;'><img src='"+savedImages[si].url+"' style='width: 90px;'></div><div style='display: inline-block;'><b>"+savedImages[si].title+"</b><br><i>"+savedImages[si].caption+"</i><br><a href='javascript:void(0)' onclick='insertImageAtCursor(\""+savedImages[si].shortcode+"\")'>Insert into Instruction</a> | <a href='"+savedImages[si].url+"' target='new'>View</a> | <a href='javascript:void(0)' onclick='removeImage("+si+")'>Remove</a></div></div>";
+        savedImagesListing.innerHTML += newImageHtml;
+      }
+  }
+
+  function removeImage(si){
+    savedImages.splice(si,1);
+    showSavedImages();
+  }
+// END IMAGE UPLOADER ******************************
+
 // TASK HANDLING
     function doTask(taskId){
         var confirmation = confirm("Are you sure?");

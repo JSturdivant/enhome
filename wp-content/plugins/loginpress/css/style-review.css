@@ -192,6 +192,38 @@ font-weight: bold;
   flex: 1;
   text-decoration: none;
 }
+.loginpress-notice-logo{
+  width: 72px;
+  text-align: center;
+  position: relative;
+  margin: 10px;
+}
+.loginpress-notice-logo img{
+  width: 50px;
+  vertical-align: middle;
+}
+
+.loginpress-notice-discription{
+  overflow: hidden;
+  width: calc(100% - 50px);
+}
+.loginpress-notification.loginpress-notice-success{
+  border:1px solid #6ab074;
+  background: #e6f0e8;
+  margin: 36px 20px 0 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+.loginpress-notice-success .loginpress-notice-discription p{
+  color: #21573a;
+}
+.loginpress-notification.loginpress-notice-success .loginpress-notification-close:before{
+  color: #21573a;
+}
 @media screen and (max-width: 1300px) {
   .loginpress-alert-thumbnail{
     width: 200px;
@@ -236,5 +268,9 @@ font-weight: bold;
   }
   .loginpress-alert-notice .notice-dismiss:before{
     color: #fff;
+  }
+  .black_friday_sale_btn .loginpress-alert-button{
+    width: 310px;
+    text-align: center;
   }
 }

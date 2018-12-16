@@ -17,7 +17,8 @@ $GLOBALS['userInfo'] = get_currentuserinfo(); // ACQUIRE WORDPRESS USER INFO
 
   include_once('functions.php');
   loadStylesheet();
-  //echo "<script src='functions.js'></script>";
+  echo "<script>".file_get_contents('functions.js')."</script>";  // ADD JS FUNCTIONS AT TOP OF PAGE
+
   loadLibraries(); // LOAD ADDITIONAL LIBRARIES NEEDED
 
   //echo '<script>console.log('$page');</script>'
