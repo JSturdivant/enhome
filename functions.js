@@ -146,15 +146,13 @@ function log(message){console.log(message);}
 
       var myAsset;
       console.log(myHome);
-      var pageContentHtml = "<div class='container'>";
+      //var pageContentHtml = "<div class='container' style='display: block; width: 100%; background: blue'>";
       // CYCLE THROUGH MY ASSET LIST
       for (m = 0; m < myHome.length; m++){
           console.log(myHome[m].assetId);
           var assetCard = renderAssetCard(myHome[m].assetId);
-          //alert(assetCard);
           var newAssetCard = "";
-          newAssetCard += "<div class='col-sm-4'>";
-          //newAssetCard += "<div class='assetCardContainer'>";
+          newAssetCard += "<div class='assetCardContainer'>";
               newAssetCard += assetCard;
               newAssetCard += "<button onclick='deleteAsset("+myHome[m].userAssetId+")'>Delete</button>";
           newAssetCard += "</div>";
@@ -162,16 +160,8 @@ function log(message){console.log(message);}
           pageContent.innerHTML += newAssetCard;
           document.getElementById('userAssetNameContainer').innerHTML = "<h1>" + myHome[m].userAssetName+ "</h1>";
           document.getElementById('userAssetNameContainer').id = myHome[m].userAssetId;
-          //pageContentHtml += assetCard;
-          //pageContentHtml += "<button onclick='deleteAsset("+myHome[m].userAssetId+")'>Delete</button>";
-          //pageContentHtml += "<tr><td>" + (myHome[m].assetName) + "(" + (myHome[m].assetId) + ")</td>\n\
-          //<td>"+(myHome[m].userAssetName)+"</td>\n\
-          //<td>"+(myHome[m].dateAdded)+"</td>\n\
-          //<td><button onclick='deleteAsset("+myHome[m].userAssetId+")'>Delete</button></td></tr>";
-      }
-      //pageContentHtml += "</table>";
 
-      //pageContent.innerHTML = pageContentHtml;
+      }
   }
 
   function renderConsolidatedCarePlan(data = null){
@@ -220,12 +210,32 @@ function log(message){console.log(message);}
   var savedImages = [];
   var imageUrl;
 
+  function addLinkedImage(){
+    var imageUrl = document.getElementById('linkedImageAddress');
+    var data = {data: {url: imageUrl.value}};
+    if(isURL(imageUrl.value)){
+      showResult(data);
+    } else {
+      return false;
+    }
+  }
+  function isURL(str) {
+    var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|'+ // domain name
+    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+    alert(pattern.test(str));
+    return pattern.test(str);
+  }
+
   function addImageUploader(targetDiv = "imageUploadContainer", insertTarget){
     var currentdate = new Date();
     var newObjectID = currentdate.getHours() +currentdate.getMinutes() + currentdate.getSeconds() + Math.random();
     document.getElementById(targetDiv).innerHTML = "    <div id='savedImagesListing'></div> \n\
     <h4>Add Image from Url:</h4> \n\
-    <input type='text' name='assetImageAddress' id='assetImageAddress'> \n\
+    <input type='url' name='linkedImageAddress' id='linkedImageAddress' onblur='addLinkedImage()'> \n\
     <div id='imageUploadContainer'></div> \n\
     <h4>Upload Image</h4> \n\
         <input id='file-upload"+newObjectID+"' name='file-upload' type='file' \n\
@@ -233,7 +243,7 @@ function log(message){console.log(message);}
           <br><input type='hidden'  name='picfile' id='picfile' placeholder='Choose your picture.jpg'> \n\
           <span  name='imageUrl' id='imageUrl'></span> \n\
           <div id='imageUploadingStatus' style='display:none;'>Uploading...</div> \n\
-          <input type='text'  name='imageTitle' id='imageTitle' placeholder='Image Title'> \n\
+          <br><input type='text'  name='imageTitle' id='imageTitle' placeholder='Image Title'> \n\
           <input type='hidden' name='savedImages' id='savedImages'> \n\
           <textarea id='imageCaption' placeholder='Caption'></textarea> \n\
           <a href='javascript:void(0)' id='saveImageButton' style='display:none; font-weight: bold; font-size: 2em;' onclick='saveImage(\""+insertTarget+"\")'>Save</a> \n\
@@ -282,6 +292,8 @@ function log(message){console.log(message);}
       'shortcode': '*[image:'+newImageTitle.value+']*',
     });
 
+    console.log('SAVED IMAGES');
+    console.log(savedImages);
     showSavedImages(insertTarget);
 
     newImageUrl.innerHTML = '';
@@ -293,6 +305,11 @@ function log(message){console.log(message);}
       var savedImagesStore = document.getElementById('savedImages');
       console.log(savedImages);
       savedImagesStore.value = JSON.stringify(savedImages);
+      var savedImagesPage = getQueryVariable('page');
+      var insertHtmlString = "";
+      if (page == 'add-new-task' || page == 'edit-task'){
+        insertHtmlString = "<br><a href='javascript:void(0)' onclick='insertImageAtCursor(\""+savedImages[si].shortcode+"\", \""+insertTarget+"\")'>Insert into Instruction</a> | ";
+      }
       //savedImagesListing.innerHTML = JSON.stringify(savedImages);
       savedImagesListing.innerHTML = '<h4>Saved Images</h4>';
       for(si = 0; si < savedImages.length; si++){
@@ -300,8 +317,8 @@ function log(message){console.log(message);}
           <div style='display: inline-block; vertical-align: top;'><img src='"+savedImages[si].url+"' style='width: 90px;'></div> \n\
           <div style='display: inline-block;'><b>"+savedImages[si].title+"</b>\n\
           <br><i>"+savedImages[si].caption+"</i>\n\
-          <br><a href='javascript:void(0)' onclick='insertImageAtCursor(\""+savedImages[si].shortcode+"\", \""+insertTarget+"\")'>Insert into Instruction</a> \n\
-            | <a href='"+savedImages[si].url+"' target='new'>View</a> \n\
+            "+insertHtmlString+"\n\
+            <a href='"+savedImages[si].url+"' target='new'>View</a> \n\
             | <a href='javascript:void(0)' onclick='removeImage("+si+")'>Remove</a></div></div>";
         savedImagesListing.innerHTML += newImageHtml;
       }
@@ -447,26 +464,21 @@ function log(message){console.log(message);}
         console.log("Render Asset Card");
         console.log(myAsset);
 
+
         var assetCardHtml = "<div class='assetCard'>";
         assetCardHtml += "<span id='userAssetNameContainer'></span>";
         assetCardHtml += "<h2>" + myAsset.assetName + "</h2>";
-        assetCardHtml += "<h4>" + myAsset.assetDetail.description + "</h4>";
-        var otherAssetDetails  = myAsset.assetDetail.otherDetails;
-        if(otherAssetDetails){
-          for (i = 0; i < otherAssetDetails.length; i++){
-              detail = otherAssetDetails[i];
-              if(detail.type == 'img'){
-                  assetCardHtml += "<img src='" + detail.value + "'>'";
-              }
-          }
+        assetCardHtml += "Asset Make: <b>" + myAsset.assetMake + "</b>";
+        assetCardHtml += ", Model #: <b>" + myAsset.modelNo + "</b>";
+        assetCardHtml += ", Model Year: <b>" + myAsset.modelYear + "</b>";
+        assetCardHtml += "<p>" + myAsset.assetDetail.description + "</p>";
+        //assetCardHtml += "<br>";
+        for(ai = 0; ai < myAsset.assetDetail.images.length; ai++){
+          assetCardHtml += "<img src='"+myAsset.assetDetail.images[ai].url+"' style='width: 20%;'>";
         }
-        //assetCardHtml += JSON.stringify(myAsset);
-        /*for (var key in otherAssetDetails) {
-          if (otherAssetDetails.hasOwnProperty(key)) {
-            console.log(key + ": " + otherAssetDetails[key]);
-          }
-        }*/
-        assetCardHtml += "</div>";
+        //assetCardHtml += "<pre>" + JSON.stringify(myAsset.assetDetail.images) + "</pre>";
+        assetCardHtml += "<pre>" + JSON.stringify(myAsset) + "</pre>";
+
         return assetCardHtml;
     }
 
@@ -538,6 +550,8 @@ function log(message){console.log(message);}
             if(assetList[al].assetId == assetId){
               console.log(assetList[al].assetDetail);
                 assetList[al].assetDetail = JSON.parse(assetList[al].assetDetail);
+                assetList[al].assetDetail.images = JSON.parse(assetList[al].assetDetail.images);
+                //assetList[al].assetDetail.otherDetails = JSON.parse(assetList[al].assetDetail.otherDetails);
                 return assetList[al];
             }
         }

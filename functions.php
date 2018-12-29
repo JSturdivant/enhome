@@ -36,7 +36,7 @@
   }
 
   function getAssetList(){
-    $queryStmt = "SELECT branch_id as parentBranchId, id as assetId, name as assetName, detail as assetDetail from enhome.assets WHERE deleted_at IS NULL;";
+    $queryStmt = "SELECT branch_id as parentBranchId, assets.id as assetId, assets.name as assetName, asset_makes.name as assetMake, model_no as modelNo, model_year as modelYear, detail as assetDetail FROM enhome.assets LEFT JOIN asset_makes ON make_id = asset_makes.id  WHERE assets.deleted_at IS NULL;";
     PrintQueryStmtAsJson($queryStmt);
   }
 
@@ -190,6 +190,7 @@ function displayUserInfo(){
       $dbh = db_connect();
       $data['detail'] = array(
           'description' => $_POST['assetDescription'],
+          'images' => $_POST['savedImages'],
           'otherDetails' => array(
               array(
                   'type' => 'img',
