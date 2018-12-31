@@ -27,7 +27,7 @@ function log(message){console.log(message);}
       {
         page: "asset-viewer",
         title: "View Asset",
-        callback: renderAssetCard,
+        callback: renderAssetPage,
       }
     ];
 
@@ -114,7 +114,7 @@ function log(message){console.log(message);}
                   if(branch[b].type == "cat"){
                       listHtml += "<li onclick='renderAssetTree(" + branch[b].branchId + ")'><span class='glyphicon glyphicon-chevron-right' aria-hidden='true'></span>" + branch[b].branchName + "</li>";
                   } else if(branch[b].type == "asset"){
-                      listHtml += "<li onclick='openAsset(" + branch[b].assetId + ")'><span class='glyphicon glyphicon-plus-sign' aria-hidden='true'></span>" + branch[b].assetName + "</li>";
+                      listHtml += "<li onclick='openAsset(null," + branch[b].assetId + ")'><span class='glyphicon glyphicon-plus-sign' aria-hidden='true'></span>" + branch[b].assetName + "</li>";
                   }
               }
           listHtml += "</ul>";
@@ -152,16 +152,21 @@ function log(message){console.log(message);}
           console.log(myHome[m].assetId);
           var assetCard = renderAssetCard(myHome[m].assetId);
           var newAssetCard = "";
-          newAssetCard += "<div class='assetCardContainer'>";
+          newAssetCard += "<div class=''>";
               newAssetCard += assetCard;
+              newAssetCard += "<br><button onclick='openAsset("+myHome[m].userAssetId+",null)'>Open</button>";
               newAssetCard += "<button onclick='deleteAsset("+myHome[m].userAssetId+")'>Delete</button>";
           newAssetCard += "</div>";
 
           pageContent.innerHTML += newAssetCard;
-          document.getElementById('userAssetNameContainer').innerHTML = "<h1>" + myHome[m].userAssetName+ "</h1>";
+          document.getElementById('userAssetNameContainer').innerHTML = myHome[m].userAssetName;
           document.getElementById('userAssetNameContainer').id = myHome[m].userAssetId;
 
       }
+  }
+
+  function openAsset(userAssetId){
+
   }
 
   function renderConsolidatedCarePlan(data = null){
@@ -306,13 +311,14 @@ function log(message){console.log(message);}
       console.log(savedImages);
       savedImagesStore.value = JSON.stringify(savedImages);
       var savedImagesPage = getQueryVariable('page');
-      var insertHtmlString = "";
-      if (page == 'add-new-task' || page == 'edit-task'){
-        insertHtmlString = "<br><a href='javascript:void(0)' onclick='insertImageAtCursor(\""+savedImages[si].shortcode+"\", \""+insertTarget+"\")'>Insert into Instruction</a> | ";
-      }
+      //alert(savedImagesPage);
       //savedImagesListing.innerHTML = JSON.stringify(savedImages);
       savedImagesListing.innerHTML = '<h4>Saved Images</h4>';
       for(si = 0; si < savedImages.length; si++){
+        var insertHtmlString = "";
+        if (savedImagesPage == 'add-new-task' || savedImagesPage == 'edit-task'){
+          insertHtmlString = "<br><a href='javascript:void(0)' onclick='insertImageAtCursor(\""+savedImages[si].shortcode+"\", \""+insertTarget+"\")'>Insert into Instruction</a> | ";
+        }
         newImageHtml = "<div style='display: block; vertical-align: top;'>\n\
           <div style='display: inline-block; vertical-align: top;'><img src='"+savedImages[si].url+"' style='width: 90px;'></div> \n\
           <div style='display: inline-block;'><b>"+savedImages[si].title+"</b>\n\
@@ -466,23 +472,26 @@ function log(message){console.log(message);}
 
 
         var assetCardHtml = "<div class='assetCard'>";
-        assetCardHtml += "<span id='userAssetNameContainer'></span>";
-        assetCardHtml += "<h2>" + myAsset.assetName + "</h2>";
-        assetCardHtml += "Asset Make: <b>" + myAsset.assetMake + "</b>";
+        assetCardHtml += "<b style='display: inline-text; font-size: 2em; text-decoration: underline;'><span id='userAssetNameContainer'></span></b>";
+        assetCardHtml += "<span style='display: inline-text; font-size: 2em; font-style: italic;'>  (" + myAsset.assetName + ")</span>";
+        assetCardHtml += "<br>Asset Make: <b>" + myAsset.assetMake + "</b>";
         assetCardHtml += ", Model #: <b>" + myAsset.modelNo + "</b>";
         assetCardHtml += ", Model Year: <b>" + myAsset.modelYear + "</b>";
         assetCardHtml += "<p>" + myAsset.assetDetail.description + "</p>";
         //assetCardHtml += "<br>";
         for(ai = 0; ai < myAsset.assetDetail.images.length; ai++){
-          assetCardHtml += "<img src='"+myAsset.assetDetail.images[ai].url+"' style='width: 20%;'>";
+          assetCardHtml += "<img src='"+myAsset.assetDetail.images[ai].url+"' style='width: 15%;'>";
         }
         //assetCardHtml += "<pre>" + JSON.stringify(myAsset.assetDetail.images) + "</pre>";
-        assetCardHtml += "<pre>" + JSON.stringify(myAsset) + "</pre>";
+        //assetCardHtml += "<pre>" + JSON.stringify(myAsset) + "</pre>";
 
         return assetCardHtml;
     }
 
-    function renderAssetPage(assetId){ // RETURN THE HTML FOR A CARD DISPLAYING THE ASSET
+    function renderAssetPage(assetId = null, userAssetId = null){ // RETURN THE HTML FOR A CARD DISPLAYING THE ASSET
+        if(!assetId){
+          var userAssetId = getQueryVariable('userAssetId');
+        }
         var myAsset = lookupAsset(assetId);
         console.log("Render Asset Card");
         console.log(myAsset);
@@ -602,9 +611,21 @@ function log(message){console.log(message);}
         history.pushState('Enhome', "EnHome App", pageUrl) ;
     }
 
-    function openAsset(assetId){ // RENDER AN ASSET IN THE ASSET VIEWER
+    function openAsset(userAssetId, assetId){ // RENDER AN ASSET IN THE ASSET VIEWER
+      if(userAssetId){
+        window.location.href = '?page_id=143&page=asset-viewer&userAssetId=' + userAssetId;
+        return true;
+      } else if(assetId){
+        window.location.href = '?page_id=143&page=asset-viewer&assetId=' + assetId;
+        return true;
+      } else {
+        return false;
+      }
+
         // UPDATE URL
             modifyUrl([{'title': 'assetId', 'value': assetId}]);
+
+            //?page_id=143&page=asset-viewer&userAssetId=84
 
         pageContent.innerHTML = renderAssetPage(assetId);
         renderAssetTasks(assetId);
