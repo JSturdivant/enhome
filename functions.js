@@ -2,7 +2,6 @@ console.log('functions.js loaded');
 
 // APP PAGE FUNTCIONS
 
-
 function log(message){console.log(message);}
 
 // PAGE LOADER
@@ -64,7 +63,6 @@ function log(message){console.log(message);}
       if(pages[p].page == page){
         mainContent.innerHTML = '<div class="row" id="'+page+'Container" style="display: block;">\n\
           <div class="col-lg-12">\n\
-            <h2>'+pages[p].title+'</h2>\n\
             <div id="'+page+'Content"></div>\n\
           </div>\n\
         </div>';
@@ -165,9 +163,6 @@ function log(message){console.log(message);}
       }
   }
 
-  function openAsset(userAssetId){
-
-  }
 
   function renderConsolidatedCarePlan(data = null){
       if(data){
@@ -599,10 +594,14 @@ function log(message){console.log(message);}
 
     function modifyUrl(params, page = null){
         var pageId = getQueryVariable('page_id');
+        var assetId = getQueryVariable('assetId');
+        var userAssetId = getQueryVariable('userAssetId');
         if(!page){
             var page = getQueryVariable('page');
         }
         var pageUrl = ('?page_id='+pageId+'&page='+page);
+        if(assetId){pageUrl = pageUrl + '&assetId=' + assetId;}
+        if(userAssetId){pageUrl = pageUrl + '&userAssetId=' + userAssetId;}
         if(params){
           for(p = 0; p < params.length; p++){
               pageUrl += "&" + params[p].title + "=" + params[p].value;
@@ -622,16 +621,7 @@ function log(message){console.log(message);}
         return false;
       }
 
-        // UPDATE URL
-            modifyUrl([{'title': 'assetId', 'value': assetId}]);
 
-            //?page_id=143&page=asset-viewer&userAssetId=84
-
-        pageContent.innerHTML = renderAssetPage(assetId);
-        renderAssetTasks(assetId);
-        pageContent.innerHTML += "<label for='newAssetName'>Asset Name: </label><input type='text' id='newAssetName' name='newAssetName'>";
-        pageContent.innerHTML += "<label for='newAssetInstallationDate'>Installation Date: </label><input type='date' id='newAssetInstallationDate' name='newAssetInstallationDate'>";
-        pageContent.innerHTML += "<button onclick='addAsset("+assetId+")'>Add to my list</button>";
     }
 
 
