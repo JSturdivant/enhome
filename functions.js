@@ -598,12 +598,14 @@ function log(message){console.log(message);}
         var pageId = getQueryVariable('page_id');
         var assetId = getQueryVariable('assetId');
         var userAssetId = getQueryVariable('userAssetId');
+        var taskId = getQueryVariable('taskId');
         if(!page){
             var page = getQueryVariable('page');
         }
         var pageUrl = ('?page_id='+pageId+'&page='+page);
         if(assetId){pageUrl = pageUrl + '&assetId=' + assetId;}
         if(userAssetId){pageUrl = pageUrl + '&userAssetId=' + userAssetId;}
+        if(taskId){pageUrl = pageUrl + '&taskId=' + taskId;}
         if(params){
           for(p = 0; p < params.length; p++){
               pageUrl += "&" + params[p].title + "=" + params[p].value;
@@ -618,6 +620,18 @@ function log(message){console.log(message);}
         return true;
       } else if(assetId){
         window.location.href = '?page_id=143&page=asset-viewer&assetId=' + assetId;
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    function openTask(taskId, userAssetId){ // RENDER AN ASSET IN THE ASSET VIEWER
+      if(userAssetId){
+        window.location.href = '?page_id=151&page=task-viewer&taskId='+taskId+'userAssetId=' + userAssetId;
+        return true;
+      } else if(assetId){
+        window.location.href = '?page_id=151&page=task-viewer&taskId=' + taskId;
         return true;
       } else {
         return false;

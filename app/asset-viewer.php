@@ -90,38 +90,39 @@
       $generic = true;
     }
 
-    echo "<table><tr>
-      <th></th>
-      <th>Task</th>
+    echo "<table><tr>";
+    echo "<th>Task</th>
       <th>Frequency Days</th>";
-      if(!$generic){
-      echo "<th>Last Completed</th>
-        <th>Next Date</th>";
-      }
-      echo "<th>Intro</th>
+    if(!$generic){
+    echo "<th>Last Completed</th>
+      <th>Next Date</th>";
+    }
+    echo "<th>Intro</th>
       <th>Tools</th>
       <th>BOM</th>
-      <th>Steps</th>
-      <th>Images</th>
-    </tr>";
+      <th>Steps</th>";
+
+      if(!$generic){ echo "<th></th>";}
+
+    echo "</tr>";
 
     //alert(carePlanTasks);
     for ($cpt = 0; $cpt < count($carePlan); $cpt++){
       $carePlan[$cpt]['description'] = json_decode($carePlan[$cpt]['description'], true);
-      echo "<tr>
-            <td><button onclick='completeTask(".$carePlan[$cpt]['taskId'].",".$carePlan[$cpt]['userAssetId'].")'>Task Done</button></td>
-            <td>" . $carePlan[$cpt]['taskName'] . "</td>
-            <td>" . $carePlan[$cpt]['frequencyDays'] . "</td>";
-            if(!$generic){
-              echo "<td>" . $carePlan[$cpt]['lastCompletedAt'] . "</td>
-              <td>" . $carePlan[$cpt]['nextDueDate'] . "</td>";
-            }
-            echo "<td>" . $carePlan[$cpt]['description']['intro'] . "</td>
-            <td>" . $carePlan[$cpt]['description']['tools'] . "</td>
-            <td>" . $carePlan[$cpt]['description']['bom'] . "</td>
-            <td>" . $carePlan[$cpt]['description']['steps'] . "</td>
-            <td>" . $carePlan[$cpt]['description']['images'] . "</td>
-            </tr>";
+      echo "<tr>";
+      echo "<td>" . $carePlan[$cpt]['taskName'] . "</td>
+      <td>" . $carePlan[$cpt]['frequencyDays'] . "</td>";
+      if(!$generic){
+        echo "<td>" . $carePlan[$cpt]['lastCompletedAt'] . "</td>
+        <td>" . $carePlan[$cpt]['nextDueDate'] . "</td>";
+      }
+      echo "<td>" . $carePlan[$cpt]['description']['intro'] . "</td>
+        <td>" . $carePlan[$cpt]['description']['tools'] . "</td>
+        <td>" . $carePlan[$cpt]['description']['bom'] . "</td>
+        <td>" . $carePlan[$cpt]['description']['steps'] . "</td>";
+      echo "<td><button onclick='openTask(".$carePlan[$cpt]['taskId'].",".$carePlan[$cpt]['userAssetId'].")'>Open Task</button></td>";
+      if(!$generic){ echo "<td><button onclick='completeTask(".$carePlan[$cpt]['taskId'].",".$carePlan[$cpt]['userAssetId'].")'>Task Done</button></td>";}
+      echo "</tr>";
     }
     echo "</table>";
 
