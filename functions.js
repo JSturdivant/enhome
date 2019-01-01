@@ -186,7 +186,7 @@ function log(message){console.log(message);}
         //alert(carePlanTasks);
           for (cpt = 0; cpt < carePlanTasks.length; cpt++){
               carePlanTasksHtml += "<tr>\n\
-                  <td><button onclick='completeTask("+carePlanTasks[cpt].taskId+","+carePlanTasks[cpt].assetId+")')>Task Done</button></td>\n\
+                  <td><button onclick='completeTask("+carePlanTasks[cpt].taskId+","+carePlanTasks[cpt].userAssetId+")')>Task Done</button></td>\n\
                   <td>" + carePlanTasks[cpt].assetName + "</td>\n\
                   <td>" + carePlanTasks[cpt].userAssetName + "</td>\n\
                   <td>" + carePlanTasks[cpt].taskName + "</td>\n\
@@ -589,7 +589,9 @@ function log(message){console.log(message);}
 
     function completeTask(completedTaskId, userAssetId){
         var data = {'completedTaskId': completedTaskId, 'userAssetId': userAssetId};
-        get("api/?token="+userToken+"&action=completeTask&data=" + JSON.stringify(data), successFunction);
+        var url = "api/?token="+userToken+"&action=completeTask&data=" + JSON.stringify(data);
+        console.log(url);
+        get(url, successFunction);
     }
 
     function modifyUrl(params, page = null){
@@ -620,18 +622,14 @@ function log(message){console.log(message);}
       } else {
         return false;
       }
-
-
     }
 
-
-
-            function successFunction(data){
-                alertBar(data.response.message, data.response.color);
-                console.log('LOADING');
-                console.log(getQueryVariable('page'));
-                loadPage(getQueryVariable('page'));
-            }
+    function successFunction(data){
+        alertBar(data.response.message, data.response.color);
+        console.log('LOADING');
+        console.log(getQueryVariable('page'));
+        loadPage(getQueryVariable('page'));
+    }
 
         // ASSET TREE NAVIGATION
 

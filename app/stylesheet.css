@@ -1,3 +1,32 @@
+table .invisble {
+  border: 0px
+}
+
+table  td .invisble  {
+  border: 0px
+}
+
+table th {
+  font-weight: bold;
+}
+
+img.thumbnail-large{
+  width: 20vw;
+  min-width: 30px;
+  -webkit-transition: 0.5s ease-out;
+  -moz-transition: 0.5s ease-out;
+  -o-transition: 0.5s ease-out;
+  transition: 0.5s ease-out;
+}
+
+img.expandable:hover {
+  -webkit-transition: 0.5s ease-out;
+  -moz-transition: 0.5s ease-out;
+  -o-transition: 0.5s ease-out;
+  transition: 0.5s ease-out;
+  width: 100%;
+}
+
 .assetCardContainer{
   display: inline-block;
   width: 100%;
