@@ -9,7 +9,7 @@
 
       // GET TASK HISTORY
         echo '<hr><h2>Task History</h2>';
-        renderTaskHistory(getTaskHistory($userAssetId));
+        renderTaskHistory(getTaskHistory($taskId, $userAssetId));
 
       // GET ASSET INFORMATION
         $userAssetInformation = getUserAssetInformationFromUserAssetId($userAssetId);
@@ -20,11 +20,6 @@
     // GET TASK INFORMATION
       echo '<hr><h2>Task Information</h2>';
       renderTaskInformation(getTaskInformation($taskId,null));
-
-      /*
-    echo "<script>modifyUrl([{'title': 'assetId', 'value': ".$_GET['assetId']."}]);</script>";
-    renderAssetInformation($_GET['assetId']);
-    */
 
 
   } else {
@@ -39,6 +34,7 @@
       //echo $qryStmt;
       $taskInformation = queryStmtToArray($qryStmt)[0];
       $taskInformation['description'] = json_decode($taskInformation['description'], true);
+      $taskInformation['description']['images'] = json_decode($taskInformation['description']['images'], true);
 
       return $taskInformation;
   }
@@ -50,11 +46,25 @@
     echo '</pre>';
   }
 
-  function getTaskHistory ($taskId, $userAssetId = null){
+  function getTaskHistory ($taskId, $userAssetId){
+    $qryStmt = "SELECT tasks.id, tasks.name as taskName,
+      	task_completion.completed_at,
+      	task_completion.started_at,
+      	task_completion.user_task_notes,
+      	frequency_days as frequencyDays
+      FROM tasks
+      LEFT JOIN task_completion ON tasks.id = task_completion.task_id
+      WHERE task_completion.user_asset_id = $userAssetId AND tasks.id = $taskId";
+      //echo $qryStmt;
+      $taskHistory = queryStmtToArray($qryStmt);
 
+      return $taskHistory;
   }
 
   function renderTaskHistory($taskHistory){
+      echo '<pre>';
+      print_r($taskHistory);
+      echo '</pre>';
 
   }
 
